@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">FinalProject</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="email_hint">Enter your email</string>
+    <string name="password_hint">Enter your password</string>
+    <string name="login_button">Log In</string>
+    <string name="create_account_prompt">Don\'t have an account? Sign up</string>
+    <string name="category_all">All</string>
+    <string name="category_personal">Personal</string>
+    <string name="category_school">School</string>
+    <string name="category_work">Work</string>
+    <string name="nav_notes">Notes</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_menu">Menu</string>
+    <string name="nav_tasks">Task</string>
+    <string name="edit_task_title">Edit Task</string>
+    <string name="create_account_title">Create Account</string>
+    <string name="full_name_hint">Enter your full name</string>
+    <string name="confirm_password_hint">Confirm your password</string>
+    <string name="register_button">Register</string>
+    <string name="already_have_account_prompt">Already have an account? Log in</string>
+    <string name="birthday_hint">Birthday (DD/MM/YYYY)</string>
+    <string name="gender_hint">Gender</string>
+    <string name="phone_hint">Phone Number</string>
+    <string name="welcome">Welcome!</string>
+    <string name="login_successful">You have successfully logged in.</string>
+    <string name="category_notes_label">%s Notes</string>
+    <string name="continue_button">Continue</string>
+    <string name="cancel_button">Cancel</string>
+</resources>
