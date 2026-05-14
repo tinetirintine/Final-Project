@@ -28,6 +28,19 @@ public class UserRepository {
 
     public void login(String email, String password, Callback<User> callback) {
         executorService.execute(() -> {
+            // Check if it's the admin account and if it exists
+            if (email.equals("adminpogi") && password.equals(SecurityUtils.hashPassword("sayolangako"))) {
+                User admin = userDao.getUserByEmail("adminpogi");
+                if (admin == null) {
+                    // Auto-create admin if it doesn't exist
+                    admin = new User("Admin Pogi", "adminpogi", password, "000", "01/01/2000", "Male");
+                    userDao.registerUser(admin);
+                    admin = userDao.getUserByEmail("adminpogi"); // Get the ID
+                }
+                callback.onResult(admin);
+                return;
+            }
+
             User user = userDao.loginUser(email, password);
             callback.onResult(user);
         });

@@ -18,9 +18,24 @@ public interface NoteDao {
     @Delete
     void deleteNote(Note note);
 
-    @Query("SELECT * FROM notes")
-    List<Note> getAllNotes();
+    @Query("SELECT * FROM notes WHERE userId = :userId AND isDeleted = 0 AND isArchived = 0 ORDER BY isPinned DESC, dateMillis DESC")
+    List<Note> getActiveNotesForUser(int userId);
 
-    @Query("SELECT * FROM notes WHERE category = :category")
-    List<Note> getNotesByCategory(String category);
+    @Query("SELECT * FROM notes WHERE userId = :userId AND isDeleted = 0")
+    List<Note> getAllNotesForUser(int userId);
+
+    @Query("SELECT * FROM notes WHERE userId = :userId AND isFavorite = 1 AND isDeleted = 0")
+    List<Note> getFavoriteNotesForUser(int userId);
+
+    @Query("SELECT * FROM notes WHERE userId = :userId AND isArchived = 1 AND isDeleted = 0")
+    List<Note> getArchivedNotesForUser(int userId);
+
+    @Query("SELECT * FROM notes WHERE userId = :userId AND isDeleted = 1")
+    List<Note> getDeletedNotesForUser(int userId);
+
+    @Query("SELECT * FROM notes WHERE userId = :userId AND category = :category AND isDeleted = 0")
+    List<Note> getNotesByCategory(int userId, String category);
+
+    @Query("DELETE FROM notes WHERE userId = :userId AND isDeleted = 1")
+    void emptyTrash(int userId);
 }

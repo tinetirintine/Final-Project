@@ -99,7 +99,8 @@ public class CreateAccount extends AppCompatActivity {
             } else if (!Objects.equals(password, confirm)) {
                 Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
             } else {
-                User user = new User(name, email, password, phone, birthday, gender);
+                String hashed = SecurityUtils.hashPassword(password);
+                User user = new User(name, email, hashed, phone, birthday, gender);
                 userRepository.register(user, success -> runOnUiThread(() -> {
                     if (success) {
                         Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show();

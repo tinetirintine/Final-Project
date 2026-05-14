@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
@@ -11,14 +12,18 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
-import android.view.Gravity;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
@@ -29,14 +34,37 @@ public class AddNoteActivity extends AppCompatActivity {
 
     private long selectedDateMillis;
     private String selectedTime = "No Time";
+    private String selectedImagePath = null;
     private Button btnPickDate, btnPickTime;
     private EditText editTitle, editTextNote;
+    private ImageView ivNoteImage;
+    private View cardImage;
     private NoteRepository noteRepository;
     private int noteId = -1; // -1 means new note
+    private int userId;
+    private boolean isFavorite = false;
+    private boolean isPinned = false;
+    private boolean isArchived = false;
+    private boolean isDone = false;
 
     private final Stack<Spannable> undoStack = new Stack<>();
     private final Stack<Spannable> redoStack = new Stack<>();
     private boolean isUndoing = false;
+
+    private final ActivityResultLauncher<String> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    selectedImagePath = uri.toString();
+                    showImage(uri);
+                }
+            }
+    );
+
+    private void showImage(Uri uri) {
+        ivNoteImage.setImageURI(uri);
+        cardImage.setVisibility(View.VISIBLE);
+    }
 
 
     @Override
@@ -44,10 +72,13 @@ public class AddNoteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
 
+        userId = getIntent().getIntExtra("user_id", -1);
         noteRepository = new NoteRepository(this);
 
         editTitle = findViewById(R.id.editTitle);
         editTextNote = findViewById(R.id.editTextNote);
+        ivNoteImage = findViewById(R.id.ivNoteImage);
+        cardImage = findViewById(R.id.cardImage);
         Spinner spinnerCategory = findViewById(R.id.spinnerCategory);
         btnPickDate = findViewById(R.id.btnPickDate);
         btnPickTime = findViewById(R.id.btnPickTime);
@@ -55,17 +86,13 @@ public class AddNoteActivity extends AppCompatActivity {
         ImageButton btnBack = findViewById(R.id.btnBack);
 
         // Toolbar buttons
-        Button btnCaps = findViewById(R.id.btnCaps);
-        Button btnBold = findViewById(R.id.btnBold);
-        Button btnItalic = findViewById(R.id.btnItalic);
-        Button btnUnderline = findViewById(R.id.btnUnderline);
-        Button btnBullet = findViewById(R.id.btnBullet);
-        Button btnNumber = findViewById(R.id.btnNumber);
-        Button btnAlphabet = findViewById(R.id.btnAlphabet);
-        Button btnAlignLeft = findViewById(R.id.btnAlignLeft);
-        Button btnAlignCenter = findViewById(R.id.btnAlignCenter);
-        Button btnAlignRight = findViewById(R.id.btnAlignRight);
-        Button btnChecklist = findViewById(R.id.btnChecklist);
+        ImageButton btnBold = findViewById(R.id.btnBold);
+        ImageButton btnItalic = findViewById(R.id.btnItalic);
+        ImageButton btnChecklist = findViewById(R.id.btnChecklist);
+        ImageButton btnInsertImage = findViewById(R.id.btnInsertImage);
+        ImageButton btnFavorite = findViewById(R.id.btnFavorite);
+        ImageButton btnPin = findViewById(R.id.btnPin);
+        ImageButton btnArchive = findViewById(R.id.btnArchive);
 
         ImageButton btnUndo = findViewById(R.id.btnUndo);
         ImageButton btnRedo = findViewById(R.id.btnRedo);
@@ -93,6 +120,16 @@ public class AddNoteActivity extends AppCompatActivity {
             selectedTime = getIntent().getStringExtra("note_time");
             btnPickTime.setText(selectedTime);
 
+            selectedImagePath = getIntent().getStringExtra("note_image");
+            if (selectedImagePath != null) {
+                showImage(Uri.parse(selectedImagePath));
+            }
+
+            isFavorite = getIntent().getBooleanExtra("note_favorite", false);
+            isPinned = getIntent().getBooleanExtra("note_pinned", false);
+            isArchived = getIntent().getBooleanExtra("note_archived", false);
+            isDone = getIntent().getBooleanExtra("note_done", false);
+
             // Set spinner selection
             String category = getIntent().getStringExtra("note_category");
             for (int i = 0; i < categories.length; i++) {
@@ -102,6 +139,7 @@ public class AddNoteActivity extends AppCompatActivity {
                 }
             }
             updateDateButtonText();
+            updateStatusButtons(btnFavorite, btnPin, btnArchive);
         } else if (getIntent().getBooleanExtra("is_template", false)) {
             String templateName = getIntent().getStringExtra("template_name");
             if (templateName == null) templateName = "PERSONAL ROUTINE";
@@ -233,7 +271,13 @@ public class AddNoteActivity extends AppCompatActivity {
             if (editTextNote.getText().toString().trim().isEmpty()) {
                 Toast.makeText(this, "Please enter some text", Toast.LENGTH_SHORT).show();
             } else {
-                Note note = new Note(title, content, category, selectedDateMillis, selectedTime);
+                Note note = new Note(userId, title, content, category, selectedDateMillis, selectedTime);
+                note.setFavorite(isFavorite);
+                note.setPinned(isPinned);
+                note.setArchived(isArchived);
+                note.setDone(isDone);
+                note.setImagePath(selectedImagePath);
+
                 if (noteId != -1) {
                     note.setId(noteId);
                     noteRepository.updateNote(note, () -> runOnUiThread(() -> {
@@ -252,34 +296,28 @@ public class AddNoteActivity extends AppCompatActivity {
         });
 
         // Toolbar Logic
-        btnCaps.setOnClickListener(v -> {
-            int start = editTextNote.getSelectionStart();
-            int end = editTextNote.getSelectionEnd();
-            if (start != end) {
-                Editable editable = editTextNote.getText();
-                String selected = editable.toString().substring(start, end);
-                if (selected.equals(selected.toUpperCase())) {
-                    editable.replace(start, end, selected.toLowerCase());
-                } else {
-                    editable.replace(start, end, selected.toUpperCase());
-                }
-            } else {
-                Toast.makeText(this, "Select text to change case", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         btnBold.setOnClickListener(v -> toggleStyleSpan(Typeface.BOLD));
         btnItalic.setOnClickListener(v -> toggleStyleSpan(Typeface.ITALIC));
-        btnUnderline.setOnClickListener(v -> toggleUnderlineSpan());
-
-        btnAlignLeft.setOnClickListener(v -> editTextNote.setGravity(Gravity.START | Gravity.TOP));
-        btnAlignCenter.setOnClickListener(v -> editTextNote.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP));
-        btnAlignRight.setOnClickListener(v -> editTextNote.setGravity(Gravity.END | Gravity.TOP));
-
-        btnBullet.setOnClickListener(v -> insertPrefix("• "));
-        btnNumber.setOnClickListener(v -> insertPrefix("1. "));
-        btnAlphabet.setOnClickListener(v -> insertPrefix("a. "));
         btnChecklist.setOnClickListener(v -> insertPrefix("[ ] "));
+        btnInsertImage.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
+
+        btnFavorite.setOnClickListener(v -> {
+            isFavorite = !isFavorite;
+            updateStatusButtons(btnFavorite, btnPin, btnArchive);
+            Toast.makeText(this, isFavorite ? "Added to Favorites" : "Removed from Favorites", Toast.LENGTH_SHORT).show();
+        });
+
+        btnPin.setOnClickListener(v -> {
+            isPinned = !isPinned;
+            updateStatusButtons(btnFavorite, btnPin, btnArchive);
+            Toast.makeText(this, isPinned ? "Note Pinned" : "Note Unpinned", Toast.LENGTH_SHORT).show();
+        });
+
+        btnArchive.setOnClickListener(v -> {
+            isArchived = !isArchived;
+            updateStatusButtons(btnFavorite, btnPin, btnArchive);
+            Toast.makeText(this, isArchived ? "Note Archived" : "Note Unarchived", Toast.LENGTH_SHORT).show();
+        });
 
         btnUndo.setOnClickListener(v -> undo());
         btnRedo.setOnClickListener(v -> redo());
@@ -383,6 +421,15 @@ public class AddNoteActivity extends AppCompatActivity {
         cal.setTimeInMillis(selectedDateMillis);
         btnPickDate.setText(String.format(Locale.getDefault(), "%02d/%02d/%d",
                 cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR)));
+    }
+
+    private void updateStatusButtons(ImageButton fav, ImageButton pin, ImageButton arc) {
+        fav.setImageDrawable(isFavorite ? ContextCompat.getDrawable(this, android.R.drawable.btn_star_big_on) : ContextCompat.getDrawable(this, android.R.drawable.btn_star_big_off));
+        fav.setColorFilter(isFavorite ? ContextCompat.getColor(this, R.color.colorFavorite) : ContextCompat.getColor(this, R.color.text_secondary));
+
+        pin.setColorFilter(isPinned ? ContextCompat.getColor(this, R.color.colorPin) : ContextCompat.getColor(this, R.color.text_secondary));
+
+        arc.setColorFilter(isArchived ? ContextCompat.getColor(this, R.color.colorArchive) : ContextCompat.getColor(this, R.color.text_secondary));
     }
 
     private void showTimePicker() {

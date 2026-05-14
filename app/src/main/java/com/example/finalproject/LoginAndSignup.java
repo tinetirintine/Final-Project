@@ -54,16 +54,10 @@ public class LoginAndSignup extends AppCompatActivity {
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             } else {
-                userRepository.login(email, password, user -> runOnUiThread(() -> {
+                String hashed = SecurityUtils.hashPassword(password);
+                userRepository.login(email, hashed, user -> runOnUiThread(() -> {
                     if (user != null) {
-                        Intent intent = new Intent(this, WelcomeActivity.class);
-                        intent.putExtra("email", user.email);
-                        intent.putExtra("name", user.fullName);
-                        intent.putExtra("phone", user.phone);
-                        intent.putExtra("birthday", user.birthday);
-                        intent.putExtra("gender", user.gender);
-                        startActivity(intent);
-                        finish();
+                        proceedToWelcome(user);
                     } else {
                         Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show();
                     }
@@ -73,5 +67,17 @@ public class LoginAndSignup extends AppCompatActivity {
 
 
         btnCreateAccount.setOnClickListener(v -> startActivity(new Intent(this, CreateAccount.class)));
+    }
+
+    private void proceedToWelcome(User user) {
+        Intent intent = new Intent(this, WelcomeActivity.class);
+        intent.putExtra("user_id", user.id);
+        intent.putExtra("email", user.email);
+        intent.putExtra("name", user.fullName);
+        intent.putExtra("phone", user.phone);
+        intent.putExtra("birthday", user.birthday);
+        intent.putExtra("gender", user.gender);
+        startActivity(intent);
+        finish();
     }
 }

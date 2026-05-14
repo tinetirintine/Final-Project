@@ -22,6 +22,7 @@ public class WelcomeActivity extends AppCompatActivity {
         TextView tvWelcomeSubtitle = findViewById(R.id.tvWelcomeSubtitle);
 
 
+        int userId = getIntent().getIntExtra("user_id", -1);
         String userEmail = getIntent().getStringExtra("email");
         String userName = getIntent().getStringExtra("name");
         String userPhone = getIntent().getStringExtra("phone");
@@ -41,6 +42,7 @@ public class WelcomeActivity extends AppCompatActivity {
         if (btnContinue != null) {
             btnContinue.setOnClickListener(v -> {
                 Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                intent.putExtra("user_id", userId);
                 intent.putExtra("email", userEmail);
                 intent.putExtra("name", userName);
                 intent.putExtra("phone", userPhone);

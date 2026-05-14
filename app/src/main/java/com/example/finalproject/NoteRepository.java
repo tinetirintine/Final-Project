@@ -39,21 +39,49 @@ public class NoteRepository {
         });
     }
 
-    public void getNotesByCategory(String category, final Callback<List<Note>> callback) {
+    public void getActiveNotes(int userId, final Callback<List<Note>> callback) {
+        executorService.execute(() -> {
+            List<Note> result = noteDao.getActiveNotesForUser(userId);
+            callback.onResult(result);
+        });
+    }
+
+    public void getFavoriteNotes(int userId, final Callback<List<Note>> callback) {
+        executorService.execute(() -> {
+            List<Note> result = noteDao.getFavoriteNotesForUser(userId);
+            callback.onResult(result);
+        });
+    }
+
+    public void getArchivedNotes(int userId, final Callback<List<Note>> callback) {
+        executorService.execute(() -> {
+            List<Note> result = noteDao.getArchivedNotesForUser(userId);
+            callback.onResult(result);
+        });
+    }
+
+    public void getDeletedNotes(int userId, final Callback<List<Note>> callback) {
+        executorService.execute(() -> {
+            List<Note> result = noteDao.getDeletedNotesForUser(userId);
+            callback.onResult(result);
+        });
+    }
+
+    public void getNotesByCategory(int userId, String category, final Callback<List<Note>> callback) {
         executorService.execute(() -> {
             List<Note> result;
             if (Objects.equals(category, "All")) {
-                result = noteDao.getAllNotes();
+                result = noteDao.getActiveNotesForUser(userId);
             } else {
-                result = noteDao.getNotesByCategory(category);
+                result = noteDao.getNotesByCategory(userId, category);
             }
             callback.onResult(result);
         });
     }
 
-    public void getNotesByDate(long dateMillis, final Callback<List<Note>> callback) {
+    public void getNotesByDate(int userId, long dateMillis, final Callback<List<Note>> callback) {
         executorService.execute(() -> {
-            List<Note> allNotes = noteDao.getAllNotes();
+            List<Note> allNotes = noteDao.getAllNotesForUser(userId);
             List<Note> filtered = new ArrayList<>();
             Calendar cal1 = Calendar.getInstance();
             cal1.setTimeInMillis(dateMillis);
@@ -66,6 +94,13 @@ public class NoteRepository {
                 }
             }
             callback.onResult(filtered);
+        });
+    }
+
+    public void emptyTrash(int userId, Runnable onComplete) {
+        executorService.execute(() -> {
+            noteDao.emptyTrash(userId);
+            if (onComplete != null) onComplete.run();
         });
     }
 
