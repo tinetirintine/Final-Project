@@ -20,13 +20,17 @@
 
 
         <activity
-            android:name=".LoginAndSignup"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".LoginAndSignup"
+            android:exported="false" />
 
 
 
@@ -37,6 +41,5 @@
 
         <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name=".AddNoteActivity" android:exported="false" />
-        <activity android:name=".TemplatesActivity" android:exported="false" />
     </application>
 </manifest>

@@ -7,7 +7,7 @@
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="6dp"
-    app:cardBackgroundColor="@color/dark_gray"
+    app:cardBackgroundColor="?attr/colorSurface"
     app:strokeWidth="1.5dp"
     app:strokeColor="@color/brand_purple">
 
@@ -59,7 +59,7 @@
                         android:text="Title"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/white"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:maxLines="1"
                         android:ellipsize="end" />
 

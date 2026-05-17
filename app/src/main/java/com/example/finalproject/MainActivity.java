@@ -17,6 +17,8 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import android.view.View;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.SharedPreferences;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +36,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Load theme preference before super.onCreate
+        SharedPreferences prefs = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("isDarkMode", true); // Default to dark as per original app
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -100,6 +111,27 @@ public class MainActivity extends AppCompatActivity {
         // --- MENU BUTTON (Opens Drawer) ---
         ImageButton btnMenu = findViewById(R.id.btnMenu);
         btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+        // --- THEME TOGGLE BUTTON (In Navigation Header) ---
+        View headerView = navigationView.getHeaderView(0);
+        ImageButton btnThemeToggle = headerView.findViewById(R.id.btnThemeToggleHeader);
+        updateThemeIcon(btnThemeToggle, isDarkMode);
+
+        btnThemeToggle.setOnClickListener(v -> {
+            boolean currentMode = prefs.getBoolean("isDarkMode", true);
+            boolean newMode = !currentMode;
+            
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("isDarkMode", newMode);
+            editor.apply();
+
+            if (newMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+            recreate(); // Recreate to apply theme changes
+        });
 
 
         // --- DRAWER NAVIGATION ---
@@ -206,5 +238,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
         popupMenu.show();
+    }
+
+    private void updateThemeIcon(ImageButton btn, boolean isDarkMode) {
+        if (isDarkMode) {
+            btn.setImageResource(R.drawable.ic_sun); // Show sun to switch to light
+        } else {
+            btn.setImageResource(R.drawable.ic_moon); // Show moon to switch to dark
+        }
     }
 }
