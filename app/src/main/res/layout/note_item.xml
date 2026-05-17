@@ -138,6 +138,17 @@
             </LinearLayout>
 
             <ImageButton
+                android:id="@+id/btnRestore"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_restore"
+                android:visibility="gone"
+                app:tint="@color/brand_purple"
+                android:contentDescription="@string/restore_note" />
+
+            <ImageButton
                 android:id="@+id/btnDelete"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
@@ -145,7 +156,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_delete"
                 app:tint="@color/colorTrash"
-                android:contentDescription="Delete Note" />
+                android:contentDescription="@string/delete_note" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

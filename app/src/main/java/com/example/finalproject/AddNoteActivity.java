@@ -478,6 +478,10 @@ public class AddNoteActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if (getIntent().getBooleanExtra("is_read_only", false)) {
+            setReadOnlyMode();
+        }
     }
 
     // ---- Fixed: API 24+ safe Html conversion ----
@@ -659,6 +663,23 @@ public class AddNoteActivity extends AppCompatActivity {
             editTextNote.setSelection(editTextNote.getText().length());
             isUndoing = false;
         }
+    }
+
+    private void setReadOnlyMode() {
+        editTitle.setEnabled(false);
+        editTextNote.setFocusable(false);
+        editTextNote.setClickable(true); // Still clickable to allow scrolling
+        editTextNote.setCursorVisible(false);
+        findViewById(R.id.spinnerCategory).setEnabled(false);
+        btnPickDate.setEnabled(false);
+        btnPickTime.setEnabled(false);
+        findViewById(R.id.btnDone).setVisibility(View.GONE);
+        findViewById(R.id.btnUndo).setVisibility(View.GONE);
+        findViewById(R.id.btnRedo).setVisibility(View.GONE);
+        findViewById(R.id.bottomToolsCard).setVisibility(View.GONE);
+        
+        // Disable touch listener for checkboxes in read-only mode
+        editTextNote.setOnTouchListener(null);
     }
 
     private void redo() {

@@ -99,6 +99,19 @@ public class CalendarFragment extends Fragment {
                         }
 
                         @Override
+                        public void onRestoreClick(Note note) {
+                            new AlertDialog.Builder(requireContext())
+                                .setTitle("Restore Note")
+                                .setMessage("Do you want to restore this note?")
+                                .setPositiveButton("Restore", (dialog, which) -> {
+                                    note.setDeleted(false);
+                                    noteRepository.updateNote(note, () -> refreshNotes());
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .show();
+                        }
+
+                        @Override
                         public void onNoteClick(Note note) {
                             Intent intent = new Intent(getActivity(), AddNoteActivity.class);
                             intent.putExtra("user_id", userId);

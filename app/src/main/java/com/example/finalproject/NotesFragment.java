@@ -196,6 +196,19 @@ public class NotesFragment extends Fragment {
                             }
 
                             @Override
+                            public void onRestoreClick(Note note) {
+                                new AlertDialog.Builder(requireContext())
+                                    .setTitle("Restore Note")
+                                    .setMessage("Do you want to restore this note?")
+                                    .setPositiveButton("Restore", (dialog, which) -> {
+                                        note.setDeleted(false);
+                                        noteRepository.updateNote(note, () -> refreshNotes());
+                                    })
+                                    .setNegativeButton("Cancel", null)
+                                    .show();
+                            }
+
+                            @Override
                             public void onNoteClick(Note note) {
                                 Intent intent = new Intent(getActivity(), AddNoteActivity.class);
                                 intent.putExtra("user_id", userId);
@@ -210,11 +223,14 @@ public class NotesFragment extends Fragment {
                                 intent.putExtra("note_archived", note.isArchived());
                                 intent.putExtra("note_done", note.isDone());
                                 intent.putExtra("note_image", note.getImagePath());
+                                intent.putExtra("is_read_only", "Trash".equals(category));
                                 startActivity(intent);
                             }
                         });
+                        adapter.setTrashMode("Trash".equals(category));
                         recyclerView.setAdapter(adapter);
                     } else {
+                        adapter.setTrashMode("Trash".equals(category));
                         adapter.updateNotes(result);
                     }
                     layoutEmpty.setVisibility(result.isEmpty() ? View.VISIBLE : View.GONE);

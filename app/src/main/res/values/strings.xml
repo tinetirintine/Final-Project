@@ -28,4 +28,6 @@
     <string name="category_notes_label">%s Notes</string>
     <string name="continue_button">Continue</string>
     <string name="cancel_button">Cancel</string>
+    <string name="restore_note">Restore Note</string>
+    <string name="delete_note">Delete Note</string>
 </resources>

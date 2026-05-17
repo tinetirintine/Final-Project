@@ -10,11 +10,11 @@
         android:title="Notes" />
     <item
         android:id="@+id/nav_favorites"
-        android:icon="@android:drawable/btn_star_big_on"
+        android:icon="@drawable/ic_heart_filled"
         android:title="Favorites" />
     <item
         android:id="@+id/nav_archive"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@drawable/ic_archive"
         android:title="Archive" />
     <item
         android:id="@+id/nav_calendar"

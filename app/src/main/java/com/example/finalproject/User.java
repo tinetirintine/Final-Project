@@ -14,6 +14,7 @@ public class User {
     public String phone;
     public String birthday;
     public String gender;
+    public String profileImage;
 
     public User(String fullName, String email, String password, String phone, String birthday, String gender) {
         this.fullName = fullName;

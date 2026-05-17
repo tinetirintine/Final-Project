@@ -72,10 +72,8 @@
                 android:layout_height="wrap_content"
                 android:hint="Email"
                 app:hintTextColor="@color/brand_purple"
-                android:textColorHint="@color/black"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:boxStrokeColor="@color/brand_purple"
-                app:boxBackgroundColor="@color/white"
                 app:boxCornerRadiusTopStart="12dp"
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -88,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/black" />
+                    android:textColor="?android:attr/textColorPrimary" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -97,12 +95,10 @@
                 android:layout_marginTop="16dp"
                 android:hint="Password"
                 app:hintTextColor="@color/brand_purple"
-                android:textColorHint="@color/black"
                 app:passwordToggleEnabled="true"
                 app:passwordToggleTint="@color/brand_purple"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:boxStrokeColor="@color/brand_purple"
-                app:boxBackgroundColor="@color/white"
                 app:boxCornerRadiusTopStart="12dp"
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -115,7 +111,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@color/black" />
+                    android:textColor="?android:attr/textColorPrimary" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button

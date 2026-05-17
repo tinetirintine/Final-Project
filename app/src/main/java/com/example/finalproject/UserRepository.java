@@ -26,6 +26,20 @@ public class UserRepository {
         });
     }
 
+    public void updateUser(User user, Runnable onComplete) {
+        executorService.execute(() -> {
+            userDao.updateUser(user);
+            if (onComplete != null) onComplete.run();
+        });
+    }
+
+    public void getUserByEmail(String email, Callback<User> callback) {
+        executorService.execute(() -> {
+            User user = userDao.getUserByEmail(email);
+            callback.onResult(user);
+        });
+    }
+
     public void login(String email, String password, Callback<User> callback) {
         executorService.execute(() -> {
             // Check if it's the admin account and if it exists

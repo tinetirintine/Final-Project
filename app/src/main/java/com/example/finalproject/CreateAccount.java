@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.android.material.textfield.TextInputLayout;
 import android.content.SharedPreferences;
 
 import java.util.Calendar;
@@ -28,8 +30,9 @@ public class CreateAccount extends AppCompatActivity {
 
 
     private EditText editTextFullName, editTextSignupEmail, editTextPhone,
-            editTextBirthday, editTextSignupPassword, editTextConfirmPassword;
+            editTextBirthday, editTextSignupPassword, editTextConfirmPassword, editTextOtherGender;
     private AutoCompleteTextView autoCompleteGender;
+    private TextInputLayout layoutOtherGender;
     private UserRepository userRepository;
 
 
@@ -63,6 +66,8 @@ public class CreateAccount extends AppCompatActivity {
         editTextPhone           = findViewById(R.id.editTextPhone);
         editTextBirthday        = findViewById(R.id.editTextBirthday);
         autoCompleteGender      = findViewById(R.id.autoCompleteGender);
+        layoutOtherGender       = findViewById(R.id.layoutOtherGender);
+        editTextOtherGender     = findViewById(R.id.editTextOtherGender);
         editTextSignupPassword  = findViewById(R.id.editTextSignupPassword);
         editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword);
         Button btnRegister      = findViewById(R.id.btnRegister);
@@ -87,6 +92,16 @@ public class CreateAccount extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, genders);
         autoCompleteGender.setAdapter(adapter);
 
+        autoCompleteGender.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = (String) parent.getItemAtPosition(position);
+            if ("Other".equals(selected)) {
+                layoutOtherGender.setVisibility(View.VISIBLE);
+            } else {
+                layoutOtherGender.setVisibility(View.GONE);
+                editTextOtherGender.setText("");
+            }
+        });
+
 
         btnRegister.setOnClickListener(v -> {
             String name = editTextFullName.getText().toString().trim();
@@ -94,6 +109,16 @@ public class CreateAccount extends AppCompatActivity {
             String phone = editTextPhone.getText().toString().trim();
             String birthday = editTextBirthday.getText().toString().trim();
             String gender = autoCompleteGender.getText().toString().trim();
+            
+            if ("Other".equals(gender)) {
+                String other = editTextOtherGender.getText().toString().trim();
+                if (other.isEmpty()) {
+                    Toast.makeText(this, "Please specify your gender", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                gender = other;
+            }
+
             String password = editTextSignupPassword.getText().toString();
             String confirm = editTextConfirmPassword.getText().toString();
 
@@ -104,6 +129,8 @@ public class CreateAccount extends AppCompatActivity {
                 Toast.makeText(this, "Full name cannot contain numbers", Toast.LENGTH_SHORT).show();
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 Toast.makeText(this, "Invalid email format", Toast.LENGTH_SHORT).show();
+            } else if (!phone.matches("^(09|\\+639)\\d{9}$")) {
+                Toast.makeText(this, "Invalid Philippine phone number (11 digits or +63)", Toast.LENGTH_SHORT).show();
             } else if (password.length() < 6) {
                 Toast.makeText(this, "Password too short!", Toast.LENGTH_SHORT).show();
             } else if (!Objects.equals(password, confirm)) {

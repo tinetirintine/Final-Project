@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_profile) {
-                loadFragment(ProfileFragment.newInstance(userEmail, userName, userPhone, userBirthday, userGender));
+                loadFragment(ProfileFragment.newInstance(userId, userEmail, userName, userPhone, userBirthday, userGender));
             } else if (itemId == R.id.nav_notes) {
                 updateButtonSelection(findViewById(R.id.btnAll));
                 loadFragment(NotesFragment.newInstance(userId, "All"));
@@ -162,6 +162,12 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             updateButtonSelection(findViewById(R.id.btnAll));
             loadFragment(NotesFragment.newInstance(userId, "All"));
+        } else {
+            // Restore visibility logic for FAB and Categories after recreation
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+            if (currentFragment != null) {
+                loadFragment(currentFragment);
+            }
         }
     }
 
@@ -180,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void loadFragment(Fragment fragment) {
+        if (isFinishing() || isDestroyed()) return;
+
         // Show/Hide category buttons based on the fragment
         View topCategories = findViewById(R.id.topCategories);
         FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
@@ -205,15 +213,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Show Add button ONLY in the main notes section
         if (isMainNotesSection) {
-            btnAdd.setVisibility(View.VISIBLE);
+            btnAdd.show();
         } else {
-            btnAdd.setVisibility(View.GONE);
+            btnAdd.hide();
         }
 
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, fragment)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     private void showAddNoteMenu(View v) {
