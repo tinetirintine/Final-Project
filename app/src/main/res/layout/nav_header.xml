@@ -1,17 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/white">
+    android:padding="24dp"
+    android:background="?attr/colorSurface">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Noteable"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/brand_purple" />
+
+        <ImageButton
+            android:id="@+id/btnThemeToggleHeader"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_sun"
+            app:tint="@color/brand_purple"
+            android:contentDescription="Toggle Theme" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/nav_tasks"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black" />
+        android:text="Stay Organized"
+        android:textSize="14sp"
+        android:textColor="#888888" />
 
 </LinearLayout>

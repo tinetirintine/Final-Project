@@ -12,112 +12,133 @@
         android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:background="?android:attr/windowBackground">
 
-        <LinearLayout
-            android:id="@+id/topBar"
-            android:layout_width="0dp"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/mainAppBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <ImageButton
-                android:id="@+id/btnMenu"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_sort_by_size"
-                android:contentDescription="@string/nav_menu" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/nav_tasks"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"
-                android:textColor="@color/black" />
-
-        </LinearLayout>
-
-        <HorizontalScrollView
-            android:id="@+id/topCategories"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:scrollbars="none"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingTop="10dp"
-            app:layout_constraintTop_toBottomOf="@id/topBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:background="?attr/colorSurface"
+            app:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="8dp">
 
-                <Button
-                    android:id="@+id/btnAll"
+                <ImageButton
+                    android:id="@+id/btnMenu"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_sort_by_size"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="@string/nav_menu" />
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/category_all"
-                    android:textAllCaps="false"
-                    android:layout_marginEnd="8dp"/>
-
-                <Button
-                    android:id="@+id/btnPersonal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/category_personal"
-                    android:textAllCaps="false"
-                    android:layout_marginEnd="8dp"/>
-
-                <Button
-                    android:id="@+id/btnSchool"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/category_school"
-                    android:textAllCaps="false"
-                    android:layout_marginEnd="8dp"/>
-
-                <Button
-                    android:id="@+id/btnWork"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/category_work"
-                    android:textAllCaps="false"
-                    android:layout_marginEnd="8dp"/>
+                    android:text="Noteable"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="12dp"
+                    android:textColor="?android:attr/textColorPrimary" />
 
             </LinearLayout>
 
-        </HorizontalScrollView>
+            <HorizontalScrollView
+                android:id="@+id/topCategories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:scrollbars="none"
+                android:paddingBottom="12dp"
+                android:paddingHorizontal="12dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="@string/category_all"
+                        android:textAllCaps="false"
+                        android:minHeight="0dp"
+                        android:layout_marginEnd="8dp"
+                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                        app:cornerRadius="20dp"
+                        android:textColor="@color/white"
+                        app:backgroundTint="@color/brand_purple" />
+
+                    <Button
+                        android:id="@+id/btnPersonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="@string/category_personal"
+                        android:textAllCaps="false"
+                        android:minHeight="0dp"
+                        android:layout_marginEnd="8dp"
+                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                        app:cornerRadius="20dp"
+                        android:textColor="@color/white"
+                        app:backgroundTint="#222222" />
+
+                    <Button
+                        android:id="@+id/btnSchool"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="@string/category_school"
+                        android:textAllCaps="false"
+                        android:minHeight="0dp"
+                        android:layout_marginEnd="8dp"
+                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                        app:cornerRadius="20dp"
+                        android:textColor="@color/white"
+                        app:backgroundTint="#222222" />
+
+                    <Button
+                        android:id="@+id/btnWork"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="@string/category_work"
+                        android:textAllCaps="false"
+                        android:minHeight="0dp"
+                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                        app:cornerRadius="20dp"
+                        android:textColor="@color/white"
+                        app:backgroundTint="#222222" />
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainer"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/topCategories"
+            app:layout_constraintTop_toBottomOf="@id/mainAppBar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <ImageButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnAdd"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_margin="20dp"
-            app:backgroundTint="@color/purple_500"
-            android:src="@android:drawable/ic_input_add"
-            android:contentDescription="@string/category_all"
-            android:padding="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="24dp"
+            app:srcCompat="@android:drawable/ic_input_add"
+            app:tint="@color/white"
+            app:backgroundTint="@color/brand_purple"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="Add Note" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -126,6 +147,9 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="?attr/colorSurface"
+        app:itemTextColor="?android:attr/textColorPrimary"
+        app:itemIconTint="@color/brand_purple"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu" />
 

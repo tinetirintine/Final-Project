@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.SharedPreferences;
 
 
 public class WelcomeActivity extends AppCompatActivity {
@@ -13,6 +15,14 @@ public class WelcomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("isDarkMode", true);
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
@@ -22,6 +32,7 @@ public class WelcomeActivity extends AppCompatActivity {
         TextView tvWelcomeSubtitle = findViewById(R.id.tvWelcomeSubtitle);
 
 
+        int userId = getIntent().getIntExtra("user_id", -1);
         String userEmail = getIntent().getStringExtra("email");
         String userName = getIntent().getStringExtra("name");
         String userPhone = getIntent().getStringExtra("phone");
@@ -41,6 +52,7 @@ public class WelcomeActivity extends AppCompatActivity {
         if (btnContinue != null) {
             btnContinue.setOnClickListener(v -> {
                 Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                intent.putExtra("user_id", userId);
                 intent.putExtra("email", userEmail);
                 intent.putExtra("name", userName);
                 intent.putExtra("phone", userPhone);

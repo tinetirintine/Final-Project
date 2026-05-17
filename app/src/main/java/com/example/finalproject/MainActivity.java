@@ -3,6 +3,7 @@ package com.example.finalproject;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -13,13 +14,17 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import android.view.View;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.SharedPreferences;
 
 
 public class MainActivity extends AppCompatActivity {
 
 
+    private int userId;
     private String userEmail;
     private String userName;
     private String userPhone;
@@ -31,10 +36,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Load theme preference before super.onCreate
+        SharedPreferences prefs = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("isDarkMode", true); // Default to dark as per original app
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
+        userId = getIntent().getIntExtra("user_id", -1);
         userEmail = getIntent().getStringExtra("email");
         userName = getIntent().getStringExtra("name");
         userPhone = getIntent().getStringExtra("phone");
@@ -72,30 +87,51 @@ public class MainActivity extends AppCompatActivity {
 
         btnAll.setOnClickListener(v -> {
             updateButtonSelection(btnAll);
-            loadFragment(NotesFragment.newInstance("All"));
+            loadFragment(NotesFragment.newInstance(userId, "All"));
         });
         btnPersonal.setOnClickListener(v -> {
             updateButtonSelection(btnPersonal);
-            loadFragment(NotesFragment.newInstance("Personal"));
+            loadFragment(NotesFragment.newInstance(userId, "Personal"));
         });
         btnSchool.setOnClickListener(v -> {
             updateButtonSelection(btnSchool);
-            loadFragment(NotesFragment.newInstance("School"));
+            loadFragment(NotesFragment.newInstance(userId, "School"));
         });
         btnWork.setOnClickListener(v -> {
             updateButtonSelection(btnWork);
-            loadFragment(NotesFragment.newInstance("Work"));
+            loadFragment(NotesFragment.newInstance(userId, "Work"));
         });
 
 
         // --- ACTION BUTTON ---
-        ImageButton btnAdd = findViewById(R.id.btnAdd);
-        btnAdd.setOnClickListener(v -> showAddNoteMenu(v));
+        FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
+        btnAdd.setOnClickListener(this::showAddNoteMenu);
 
 
         // --- MENU BUTTON (Opens Drawer) ---
         ImageButton btnMenu = findViewById(R.id.btnMenu);
         btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+
+        // --- THEME TOGGLE BUTTON (In Navigation Header) ---
+        View headerView = navigationView.getHeaderView(0);
+        ImageButton btnThemeToggle = headerView.findViewById(R.id.btnThemeToggleHeader);
+        updateThemeIcon(btnThemeToggle, isDarkMode);
+
+        btnThemeToggle.setOnClickListener(v -> {
+            boolean currentMode = prefs.getBoolean("isDarkMode", true);
+            boolean newMode = !currentMode;
+            
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("isDarkMode", newMode);
+            editor.apply();
+
+            if (newMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+            recreate(); // Recreate to apply theme changes
+        });
 
 
         // --- DRAWER NAVIGATION ---
@@ -104,10 +140,16 @@ public class MainActivity extends AppCompatActivity {
             if (itemId == R.id.nav_profile) {
                 loadFragment(ProfileFragment.newInstance(userEmail, userName, userPhone, userBirthday, userGender));
             } else if (itemId == R.id.nav_notes) {
-                updateButtonSelection(btnAll);
-                loadFragment(NotesFragment.newInstance("All"));
+                updateButtonSelection(findViewById(R.id.btnAll));
+                loadFragment(NotesFragment.newInstance(userId, "All"));
+            } else if (itemId == R.id.nav_favorites) {
+                loadFragment(NotesFragment.newInstance(userId, "Favorites"));
+            } else if (itemId == R.id.nav_archive) {
+                loadFragment(NotesFragment.newInstance(userId, "Archive"));
+            } else if (itemId == R.id.nav_trash) {
+                loadFragment(NotesFragment.newInstance(userId, "Trash"));
             } else if (itemId == R.id.nav_calendar) {
-                loadFragment(new CalendarFragment());
+                loadFragment(CalendarFragment.newInstance(userId));
             }
 
 
@@ -118,8 +160,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Set default fragment to Notes
         if (savedInstanceState == null) {
-            updateButtonSelection(btnAll);
-            loadFragment(NotesFragment.newInstance("All"));
+            updateButtonSelection(findViewById(R.id.btnAll));
+            loadFragment(NotesFragment.newInstance(userId, "All"));
         }
     }
 
@@ -127,11 +169,11 @@ public class MainActivity extends AppCompatActivity {
     private void updateButtonSelection(Button selectedButton) {
         for (Button btn : categoryButtons) {
             if (btn == selectedButton) {
-                btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple_500)));
+                btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brand_purple)));
                 btn.setTextColor(ContextCompat.getColor(this, R.color.white));
             } else {
-                btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.nav_bg)));
-                btn.setTextColor(ContextCompat.getColor(this, R.color.black));
+                btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#222222")));
+                btn.setTextColor(ContextCompat.getColor(this, R.color.white));
             }
         }
     }
@@ -140,18 +182,32 @@ public class MainActivity extends AppCompatActivity {
     private void loadFragment(Fragment fragment) {
         // Show/Hide category buttons based on the fragment
         View topCategories = findViewById(R.id.topCategories);
+        FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
+        
+        boolean isMainNotesSection = false;
+
         if (fragment instanceof NotesFragment) {
-            topCategories.setVisibility(View.VISIBLE);
+            Bundle args = fragment.getArguments();
+            String cat = args != null ? args.getString("category") : "All";
+            
+            // "Main Notes" are All, Personal, School, Work
+            if ("Favorites".equals(cat) || "Archive".equals(cat) || "Trash".equals(cat)) {
+                topCategories.setVisibility(View.GONE);
+                isMainNotesSection = false;
+            } else {
+                topCategories.setVisibility(View.VISIBLE);
+                isMainNotesSection = true;
+            }
         } else {
             topCategories.setVisibility(View.GONE);
+            isMainNotesSection = false;
         }
 
-        // Show/Hide Add button (hide in Profile)
-        ImageButton btnAdd = findViewById(R.id.btnAdd);
-        if (fragment instanceof ProfileFragment) {
-            btnAdd.setVisibility(View.GONE);
-        } else {
+        // Show Add button ONLY in the main notes section
+        if (isMainNotesSection) {
             btnAdd.setVisibility(View.VISIBLE);
+        } else {
+            btnAdd.setVisibility(View.GONE);
         }
 
         getSupportFragmentManager()
@@ -170,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.setOnMenuItemClickListener(item -> {
             String title = item.getTitle().toString();
             Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
+            intent.putExtra("user_id", userId);
 
             if (title.equals("New")) {
                 startActivity(intent);
@@ -181,5 +238,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
         popupMenu.show();
+    }
+
+    private void updateThemeIcon(ImageButton btn, boolean isDarkMode) {
+        if (isDarkMode) {
+            btn.setImageResource(R.drawable.ic_sun); // Show sun to switch to light
+        } else {
+            btn.setImageResource(R.drawable.ic_moon); // Show moon to switch to dark
+        }
     }
 }

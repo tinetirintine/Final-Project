@@ -5,8 +5,15 @@
     android:id="@+id/mainHome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/brand_purple">
+    android:background="?android:attr/windowBackground">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@drawable/category_bg"
+        android:backgroundTint="@color/brand_purple"
+        app:layout_constraintTop_toTopOf="parent"
+        android:alpha="0.2" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -18,39 +25,79 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="60dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <ImageView
+                android:id="@+id/ivWelcomeLogo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/my_logo"
+                android:scaleType="centerCrop"
+                android:contentDescription="Welcome Logo" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/category_bg"
+            android:backgroundTint="@color/brand_purple"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="24dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Note"
+                android:textColor="@color/black"
+                android:textSize="40sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="able"
+                android:textColor="@color/white"
+                android:textSize="40sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvWelcomeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/welcome"
-            android:textColor="@color/white"
-            android:textSize="32sp"
+            android:text="Welcome!"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="28sp"
             android:textStyle="bold" />
-
 
         <TextView
             android:id="@+id/tvWelcomeSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/login_successful"
-            android:textColor="@color/welcome_subtitle"
+            android:layout_marginTop="12dp"
+            android:text="Login Successful"
+            android:textColor="@color/text_secondary"
             android:textSize="18sp" />
-
 
         <Button
             android:id="@+id/btnContinue"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            app:backgroundTint="@color/white"
-            android:text="@string/continue_button"
-            android:textColor="@color/brand_purple"
-            android:textStyle="bold" />
-
+            android:layout_width="240dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="50dp"
+            app:backgroundTint="@color/brand_purple"
+            android:text="GET STARTED"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            app:cornerRadius="30dp"
+            app:elevation="8dp" />
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

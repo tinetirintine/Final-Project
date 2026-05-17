@@ -14,9 +14,11 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.content.SharedPreferences;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -33,6 +35,14 @@ public class CreateAccount extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("isDarkMode", true);
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_signup);
@@ -99,7 +109,8 @@ public class CreateAccount extends AppCompatActivity {
             } else if (!Objects.equals(password, confirm)) {
                 Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
             } else {
-                User user = new User(name, email, password, phone, birthday, gender);
+                String hashed = SecurityUtils.hashPassword(password);
+                User user = new User(name, email, hashed, phone, birthday, gender);
                 userRepository.register(user, success -> runOnUiThread(() -> {
                     if (success) {
                         Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show();
