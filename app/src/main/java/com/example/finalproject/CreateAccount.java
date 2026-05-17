@@ -127,8 +127,8 @@ public class CreateAccount extends AppCompatActivity {
                 Toast.makeText(this, "Fields cannot be empty", Toast.LENGTH_SHORT).show();
             } else if (name.matches(".*\\d.*")) {
                 Toast.makeText(this, "Full name cannot contain numbers", Toast.LENGTH_SHORT).show();
-            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Invalid email format", Toast.LENGTH_SHORT).show();
+            } else if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.(com|net|org|edu|gov|ph|info|biz)$")) {
+                Toast.makeText(this, "Invalid email format (e.g., .com, .ph)", Toast.LENGTH_SHORT).show();
             } else if (!phone.matches("^(09|\\+639)\\d{9}$")) {
                 Toast.makeText(this, "Invalid Philippine phone number (11 digits or +63)", Toast.LENGTH_SHORT).show();
             } else if (password.length() < 6) {

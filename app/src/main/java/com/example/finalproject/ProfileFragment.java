@@ -188,8 +188,8 @@ public class ProfileFragment extends Fragment {
         }
 
         // 2. Validate Email format
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
-            Toast.makeText(getContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
+        if (!newEmail.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.(com|net|org|edu|gov|ph|info|biz)$")) {
+            Toast.makeText(getContext(), "Invalid email format (e.g., .com, .ph)", Toast.LENGTH_SHORT).show();
             return;
         }
 
