@@ -75,14 +75,49 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/checkbox_on_background"
+                android:src="@drawable/ic_save"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Done"/>
+        </LinearLayout>
+
+        <!-- Search Bar (Hidden by default) -->
+        <LinearLayout
+            android:id="@+id/layoutSearchBar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="@color/brand_purple"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/etSearchInNote"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Find in note..."
+                android:textColor="@color/white"
+                android:textColorHint="#CCCCCC"
+                android:background="@android:color/transparent"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:imeOptions="actionDone"
+                android:inputType="text" />
+
+            <ImageButton
+                android:id="@+id/btnCloseSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="@color/white" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
@@ -241,11 +276,20 @@
                 android:gravity="center_vertical">
 
                 <ImageButton
+                    android:id="@+id/btnCaps"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_case"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Toggle Case" />
+
+                <ImageButton
                     android:id="@+id/btnBold"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_edit"
+                    android:src="@drawable/ic_format_bold"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Bold" />
 
@@ -254,17 +298,81 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_edit"
-                    android:rotation="15"
+                    android:src="@drawable/ic_format_italic"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Italic" />
+
+                <ImageButton
+                    android:id="@+id/btnUnderline"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_underline"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Underline" />
+
+                <ImageButton
+                    android:id="@+id/btnBullet"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_list_bulleted"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Bullet List" />
+
+                <ImageButton
+                    android:id="@+id/btnNumber"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_list_numbered"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Numbered List" />
+
+                <Button
+                    android:id="@+id/btnAlphabet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="a.b.c"
+                    android:textAllCaps="false"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="12dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:textColor="@color/brand_purple" />
+
+                <ImageButton
+                    android:id="@+id/btnAlignLeft"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_align_left"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Align Left" />
+
+                <ImageButton
+                    android:id="@+id/btnAlignCenter"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_align_center"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Align Center" />
+
+                <ImageButton
+                    android:id="@+id/btnAlignRight"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_align_right"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Align Right" />
 
                 <ImageButton
                     android:id="@+id/btnChecklist"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/checkbox_on_background"
+                    android:src="@drawable/ic_checkbox_checked"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Checklist" />
 
@@ -288,7 +396,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:src="@drawable/ic_heart_outline"
                     app:tint="@color/colorFavorite"
                     android:contentDescription="Favorite" />
 
@@ -297,7 +405,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/btn_star_big_on"
+                    android:src="@drawable/ic_pin_outline"
                     app:tint="@color/colorPin"
                     android:contentDescription="Pin" />
 
@@ -306,7 +414,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_save"
+                    android:src="@drawable/ic_archive"
                     app:tint="@color/colorArchive"
                     android:contentDescription="Archive" />
 
@@ -315,9 +423,9 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Search"
                     android:src="@android:drawable/ic_menu_search"
-                    app:tint="@color/brand_purple"
-                    android:contentDescription="Search" />
+                    app:tint="@color/brand_purple" />
 
             </LinearLayout>
         </HorizontalScrollView>

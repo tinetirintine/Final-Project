@@ -150,24 +150,32 @@ public class MainActivity extends AppCompatActivity {
     private void loadFragment(Fragment fragment) {
         // Show/Hide category buttons based on the fragment
         View topCategories = findViewById(R.id.topCategories);
+        FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
+        
+        boolean isMainNotesSection = false;
+
         if (fragment instanceof NotesFragment) {
             Bundle args = fragment.getArguments();
             String cat = args != null ? args.getString("category") : "All";
+            
+            // "Main Notes" are All, Personal, School, Work
             if ("Favorites".equals(cat) || "Archive".equals(cat) || "Trash".equals(cat)) {
                 topCategories.setVisibility(View.GONE);
+                isMainNotesSection = false;
             } else {
                 topCategories.setVisibility(View.VISIBLE);
+                isMainNotesSection = true;
             }
         } else {
             topCategories.setVisibility(View.GONE);
+            isMainNotesSection = false;
         }
 
-        // Show/Hide Add button (hide in Profile)
-        FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
-        if (fragment instanceof ProfileFragment) {
-            btnAdd.setVisibility(View.GONE);
-        } else {
+        // Show Add button ONLY in the main notes section
+        if (isMainNotesSection) {
             btnAdd.setVisibility(View.VISIBLE);
+        } else {
+            btnAdd.setVisibility(View.GONE);
         }
 
         getSupportFragmentManager()

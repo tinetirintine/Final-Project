@@ -7,9 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextWatcher;
+import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.view.View;
@@ -18,16 +22,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class AddNoteActivity extends AppCompatActivity {
@@ -61,6 +69,10 @@ public class AddNoteActivity extends AppCompatActivity {
             }
     );
 
+    private LinearLayout layoutSearchBar;
+    private EditText etSearchInNote;
+    private NestedScrollView nestedScrollView;
+
     private void showImage(Uri uri) {
         ivNoteImage.setImageURI(uri);
         cardImage.setVisibility(View.VISIBLE);
@@ -86,8 +98,17 @@ public class AddNoteActivity extends AppCompatActivity {
         ImageButton btnBack = findViewById(R.id.btnBack);
 
         // Toolbar buttons
+        ImageButton btnCaps = findViewById(R.id.btnCaps);
         ImageButton btnBold = findViewById(R.id.btnBold);
         ImageButton btnItalic = findViewById(R.id.btnItalic);
+        ImageButton btnUnderline = findViewById(R.id.btnUnderline);
+        ImageButton btnBullet = findViewById(R.id.btnBullet);
+        ImageButton btnNumber = findViewById(R.id.btnNumber);
+        Button btnAlphabet = findViewById(R.id.btnAlphabet);
+        ImageButton btnAlignLeft = findViewById(R.id.btnAlignLeft);
+        ImageButton btnAlignCenter = findViewById(R.id.btnAlignCenter);
+        ImageButton btnAlignRight = findViewById(R.id.btnAlignRight);
+
         ImageButton btnChecklist = findViewById(R.id.btnChecklist);
         ImageButton btnInsertImage = findViewById(R.id.btnInsertImage);
         ImageButton btnFavorite = findViewById(R.id.btnFavorite);
@@ -97,6 +118,7 @@ public class AddNoteActivity extends AppCompatActivity {
         ImageButton btnUndo = findViewById(R.id.btnUndo);
         ImageButton btnRedo = findViewById(R.id.btnRedo);
         ImageButton btnSearch = findViewById(R.id.btnSearch);
+        nestedScrollView = findViewById(R.id.nestedScrollView);
 
         selectedDateMillis = System.currentTimeMillis();
 
@@ -298,7 +320,16 @@ public class AddNoteActivity extends AppCompatActivity {
         // Toolbar Logic
         btnBold.setOnClickListener(v -> toggleStyleSpan(Typeface.BOLD));
         btnItalic.setOnClickListener(v -> toggleStyleSpan(Typeface.ITALIC));
-        btnChecklist.setOnClickListener(v -> insertPrefix("[ ] "));
+        btnCaps.setOnClickListener(v -> toggleAllCaps());
+        btnUnderline.setOnClickListener(v -> toggleUnderlineSpan());
+        btnBullet.setOnClickListener(v -> toggleListPrefix("bullet"));
+        btnNumber.setOnClickListener(v -> toggleListPrefix("number"));
+        btnAlphabet.setOnClickListener(v -> toggleListPrefix("alpha"));
+        btnAlignLeft.setOnClickListener(v -> setAlignment(Layout.Alignment.ALIGN_NORMAL));
+        btnAlignCenter.setOnClickListener(v -> setAlignment(Layout.Alignment.ALIGN_CENTER));
+        btnAlignRight.setOnClickListener(v -> setAlignment(Layout.Alignment.ALIGN_OPPOSITE));
+
+        btnChecklist.setOnClickListener(v -> toggleListPrefix("checkbox"));
         btnInsertImage.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
 
         btnFavorite.setOnClickListener(v -> {
@@ -321,7 +352,110 @@ public class AddNoteActivity extends AppCompatActivity {
 
         btnUndo.setOnClickListener(v -> undo());
         btnRedo.setOnClickListener(v -> redo());
-        btnSearch.setOnClickListener(v -> Toast.makeText(this, "Search feature coming soon!", Toast.LENGTH_SHORT).show());
+        
+        layoutSearchBar = findViewById(R.id.layoutSearchBar);
+        etSearchInNote = findViewById(R.id.etSearchInNote);
+        ImageButton btnCloseSearch = findViewById(R.id.btnCloseSearch);
+
+        btnSearch.setOnClickListener(v -> {
+            layoutSearchBar.setVisibility(View.VISIBLE);
+            etSearchInNote.requestFocus();
+        });
+
+        btnCloseSearch.setOnClickListener(v -> {
+            layoutSearchBar.setVisibility(View.GONE);
+            etSearchInNote.setText("");
+            clearHighlights();
+        });
+
+        etSearchInNote.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                highlightText(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // Smart Lists: Auto-create new item on Enter
+        editTextNote.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == android.view.KeyEvent.ACTION_DOWN && keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
+                int selectionStart = editTextNote.getSelectionStart();
+                Editable editable = editTextNote.getText();
+                int lineStart = getLineStart(editable, selectionStart);
+                String lineText = editable.subSequence(lineStart, selectionStart).toString();
+
+                // Bullets and Checkboxes
+                if (lineText.startsWith("☐ ") || lineText.startsWith("☑ ") || lineText.startsWith("• ")) {
+                    if (lineText.trim().equals("☐") || lineText.trim().equals("☑") || lineText.trim().equals("•")) {
+                        editable.delete(lineStart, selectionStart);
+                        return false;
+                    }
+                    String prefix = lineText.startsWith("☐ ") ? "\n☐ " : (lineText.startsWith("☑ ") ? "\n☑ " : "\n• ");
+                    editable.insert(selectionStart, prefix);
+                    return true;
+                }
+
+                // Numbers
+                Matcher numMatcher = Pattern.compile("^(\\d+)\\.\\s(.*)").matcher(lineText);
+                if (numMatcher.find()) {
+                    String number = numMatcher.group(1);
+                    String content = numMatcher.group(2);
+                    if (content.trim().isEmpty()) {
+                        editable.delete(lineStart, selectionStart);
+                        return false;
+                    }
+                    try {
+                        int nextNum = Integer.parseInt(number) + 1;
+                        editable.insert(selectionStart, "\n" + nextNum + ". ");
+                        return true;
+                    } catch (NumberFormatException e) { }
+                }
+
+                // Alphabets
+                Matcher alphaMatcher = Pattern.compile("^([a-z])\\.\\s(.*)").matcher(lineText);
+                if (alphaMatcher.find()) {
+                    String alpha = alphaMatcher.group(1);
+                    String content = alphaMatcher.group(2);
+                    if (content.trim().isEmpty()) {
+                        editable.delete(lineStart, selectionStart);
+                        return false;
+                    }
+                    char nextAlpha = (char) (alpha.charAt(0) + 1);
+                    if (alpha.charAt(0) == 'z') nextAlpha = 'a';
+                    editable.insert(selectionStart, "\n" + nextAlpha + ". ");
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // Toggle checkboxes on tap
+        editTextNote.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                float x = event.getX() - editTextNote.getPaddingLeft();
+                float y = event.getY() - editTextNote.getPaddingTop();
+                int offset = editTextNote.getOffsetForPosition(x, y);
+                Editable editable = editTextNote.getText();
+                if (offset < editable.length()) {
+                    char clickedChar = editable.charAt(offset);
+                    if (clickedChar == '☐') {
+                        editable.replace(offset, offset + 1, "☑");
+                        v.performClick();
+                        return true;
+                    } else if (clickedChar == '☑') {
+                        editable.replace(offset, offset + 1, "☐");
+                        v.performClick();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
 
         // Spannable Undo stack
         editTextNote.addTextChangedListener(new android.text.TextWatcher() {
@@ -344,8 +478,16 @@ public class AddNoteActivity extends AppCompatActivity {
     private void toggleStyleSpan(int style) {
         int start = editTextNote.getSelectionStart();
         int end = editTextNote.getSelectionEnd();
-        if (start != end) {
-            Editable editable = editTextNote.getText();
+        Editable editable = editTextNote.getText();
+
+        if (start == end) {
+            // No selection, apply to current word
+            int[] wordBounds = getWordBounds(editable, start);
+            start = wordBounds[0];
+            end = wordBounds[1];
+        }
+
+        if (start < end) {
             StyleSpan[] spans = editable.getSpans(start, end, StyleSpan.class);
             boolean exists = false;
             for (StyleSpan span : spans) {
@@ -357,16 +499,67 @@ public class AddNoteActivity extends AppCompatActivity {
             if (!exists) {
                 editable.setSpan(new StyleSpan(style), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-        } else {
-            Toast.makeText(this, "Select text to apply style", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void toggleAllCaps() {
+        int start = editTextNote.getSelectionStart();
+        int end = editTextNote.getSelectionEnd();
+        Editable editable = editTextNote.getText();
+
+        if (start == end) {
+            int[] wordBounds = getWordBounds(editable, start);
+            start = wordBounds[0];
+            end = wordBounds[1];
+        }
+
+        if (start < end) {
+            String selectedText = editable.subSequence(start, end).toString();
+            if (selectedText.equals(selectedText.toUpperCase())) {
+                editable.replace(start, end, selectedText.toLowerCase());
+            } else {
+                editable.replace(start, end, selectedText.toUpperCase());
+            }
+        }
+    }
+
+    private void setAlignment(Layout.Alignment alignment) {
+        int start = editTextNote.getSelectionStart();
+        int end = editTextNote.getSelectionEnd();
+        Editable editable = editTextNote.getText();
+
+        // Find the start and end of the paragraph(s)
+        int paraStart = getLineStart(editable, start);
+        int paraEnd = end;
+        for (int i = end; i < editable.length(); i++) {
+            if (editable.charAt(i) == '\n') {
+                paraEnd = i;
+                break;
+            }
+            paraEnd = editable.length();
+        }
+
+        // Remove existing alignment spans in this range
+        AlignmentSpan[] spans = editable.getSpans(paraStart, paraEnd, AlignmentSpan.class);
+        for (AlignmentSpan span : spans) {
+            editable.removeSpan(span);
+        }
+
+        editable.setSpan(new AlignmentSpan.Standard(alignment), paraStart, paraEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private void toggleUnderlineSpan() {
         int start = editTextNote.getSelectionStart();
         int end = editTextNote.getSelectionEnd();
-        if (start != end) {
-            Editable editable = editTextNote.getText();
+        Editable editable = editTextNote.getText();
+
+        if (start == end) {
+            int[] wordBounds = getWordBounds(editable, start);
+            start = wordBounds[0];
+            end = wordBounds[1];
+        }
+
+        if (start < end) {
             UnderlineSpan[] spans = editable.getSpans(start, end, UnderlineSpan.class);
             if (spans != null && spans.length > 0) {
                 for (UnderlineSpan span : spans) {
@@ -375,14 +568,77 @@ public class AddNoteActivity extends AppCompatActivity {
             } else {
                 editable.setSpan(new UnderlineSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-        } else {
-            Toast.makeText(this, "Select text to underline", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void insertPrefix(String prefix) {
-        int start = editTextNote.getSelectionStart();
-        editTextNote.getText().insert(start, prefix);
+    private int[] getWordBounds(Editable editable, int pos) {
+        int start = pos;
+        int end = pos;
+        while (start > 0 && !Character.isWhitespace(editable.charAt(start - 1))) {
+            start--;
+        }
+        while (end < editable.length() && !Character.isWhitespace(editable.charAt(end))) {
+            end++;
+        }
+        return new int[]{start, end};
+    }
+
+    private void toggleListPrefix(String type) {
+        int selectionStart = editTextNote.getSelectionStart();
+        Editable editable = editTextNote.getText();
+        int lineStart = getLineStart(editable, selectionStart);
+
+        int lineEnd = selectionStart;
+        for (int i = selectionStart; i < editable.length(); i++) {
+            if (editable.charAt(i) == '\n') {
+                lineEnd = i;
+                break;
+            }
+            lineEnd = editable.length();
+        }
+        String lineText = editable.subSequence(lineStart, lineEnd).toString();
+
+        Matcher matcher = Pattern.compile("^([•☐☑]|\\d+\\.|[a-z]\\.)\\s?").matcher(lineText);
+        String foundMarker = matcher.find() ? matcher.group() : null;
+
+        String newMarker = "";
+        switch (type) {
+            case "bullet": newMarker = "• "; break;
+            case "number": newMarker = "1. "; break;
+            case "alpha": newMarker = "a. "; break;
+            case "checkbox": newMarker = "☐ "; break;
+        }
+
+        if (foundMarker != null) {
+            boolean isSameType = false;
+            if (type.equals("bullet") && foundMarker.startsWith("•")) isSameType = true;
+            else if (type.equals("number") && foundMarker.matches("\\d+\\.\\s?")) isSameType = true;
+            else if (type.equals("alpha") && foundMarker.matches("[a-z]\\.\\s?")) isSameType = true;
+            else if (type.equals("checkbox") && (foundMarker.startsWith("☐") || foundMarker.startsWith("☑"))) isSameType = true;
+
+            if (isSameType) {
+                if (type.equals("checkbox") && foundMarker.startsWith("☐")) {
+                    editable.replace(lineStart, lineStart + foundMarker.length(), "☑ ");
+                } else {
+                    editable.delete(lineStart, lineStart + foundMarker.length());
+                }
+            } else {
+                editable.replace(lineStart, lineStart + foundMarker.length(), newMarker);
+            }
+        } else {
+            editable.insert(lineStart, newMarker);
+        }
+    }
+
+    private int getLineStart(Editable editable, int position) {
+        int lineStart = 0;
+        for (int i = position - 1; i >= 0; i--) {
+            if (editable.charAt(i) == '\n') {
+                lineStart = i + 1;
+                break;
+            }
+        }
+        return lineStart;
     }
 
     private void undo() {
@@ -424,9 +680,10 @@ public class AddNoteActivity extends AppCompatActivity {
     }
 
     private void updateStatusButtons(ImageButton fav, ImageButton pin, ImageButton arc) {
-        fav.setImageDrawable(isFavorite ? ContextCompat.getDrawable(this, android.R.drawable.btn_star_big_on) : ContextCompat.getDrawable(this, android.R.drawable.btn_star_big_off));
+        fav.setImageDrawable(isFavorite ? ContextCompat.getDrawable(this, R.drawable.ic_heart_filled) : ContextCompat.getDrawable(this, R.drawable.ic_heart_outline));
         fav.setColorFilter(isFavorite ? ContextCompat.getColor(this, R.color.colorFavorite) : ContextCompat.getColor(this, R.color.text_secondary));
 
+        pin.setImageDrawable(isPinned ? ContextCompat.getDrawable(this, R.drawable.ic_pin_filled) : ContextCompat.getDrawable(this, R.drawable.ic_pin_outline));
         pin.setColorFilter(isPinned ? ContextCompat.getColor(this, R.color.colorPin) : ContextCompat.getColor(this, R.color.text_secondary));
 
         arc.setColorFilter(isArchived ? ContextCompat.getColor(this, R.color.colorArchive) : ContextCompat.getColor(this, R.color.text_secondary));
@@ -438,5 +695,47 @@ public class AddNoteActivity extends AppCompatActivity {
             selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
             btnPickTime.setText(selectedTime);
         }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show();
+    }
+
+    private void highlightText(String query) {
+        clearHighlights();
+        if (query.isEmpty()) return;
+
+        Editable editable = editTextNote.getText();
+        String text = editable.toString().toLowerCase();
+        String lowerQuery = query.toLowerCase();
+
+        int index = text.indexOf(lowerQuery);
+        if (index >= 0) {
+            final int firstIndex = index;
+            editTextNote.post(() -> {
+                Layout layout = editTextNote.getLayout();
+                if (layout != null) {
+                    int line = layout.getLineForOffset(firstIndex);
+                    int y = layout.getLineTop(line);
+                    
+                    // Calculate the position relative to NestedScrollView
+                    View cardView = (View) editTextNote.getParent();
+                    View contentLayout = (View) cardView.getParent();
+                    int scrollToY = contentLayout.getTop() + cardView.getTop() + editTextNote.getTop() + y;
+                    
+                    nestedScrollView.smoothScrollTo(0, scrollToY - 100);
+                }
+            });
+        }
+
+        while (index >= 0) {
+            editable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(this, R.color.brand_purple_light)),
+                    index, index + lowerQuery.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            index = text.indexOf(lowerQuery, index + lowerQuery.length());
+        }
+    }
+
+    private void clearHighlights() {
+        Editable editable = editTextNote.getText();
+        BackgroundColorSpan[] spans = editable.getSpans(0, editable.length(), BackgroundColorSpan.class);
+        for (BackgroundColorSpan span : spans) {
+            editable.removeSpan(span);
+        }
     }
 }

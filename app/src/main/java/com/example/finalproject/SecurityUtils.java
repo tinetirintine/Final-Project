@@ -4,10 +4,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class SecurityUtils {
+    // A constant salt (pepper) to increase security against rainbow tables
+    private static final String SALT = "NoteableApp_Secret_Salt_2024";
+
     public static String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes());
+            // Combine password with salt before hashing
+            String saltedPassword = SALT + password;
+            byte[] hash = digest.digest(saltedPassword.getBytes());
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);

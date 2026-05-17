@@ -24,7 +24,7 @@
     <color name="text_hint">#666666</color>
 
     <!-- Action Colors -->
-    <color name="colorFavorite">#FFD700</color>
+    <color name="colorFavorite">#FF0000</color>
     <color name="colorArchive">#4CAF50</color>
     <color name="colorTrash">#F44336</color>
     <color name="colorPin">#2196F3</color>

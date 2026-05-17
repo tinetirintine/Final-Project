@@ -68,7 +68,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_marginStart="6dp"
-                        android:src="@android:drawable/btn_star_big_on"
+                        android:src="@drawable/ic_pin_filled"
                         android:visibility="gone"
                         app:tint="@color/colorPin"
                         android:contentDescription="Pinned" />
@@ -78,7 +78,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_marginStart="6dp"
-                        android:src="@android:drawable/btn_star_big_on"
+                        android:src="@drawable/ic_heart_filled"
                         android:visibility="gone"
                         app:tint="@color/colorFavorite"
                         android:contentDescription="Favorite" />
@@ -88,7 +88,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_marginStart="6dp"
-                        android:src="@android:drawable/ic_menu_save"
+                        android:src="@drawable/ic_archive"
                         android:visibility="gone"
                         app:tint="@color/colorArchive"
                         android:contentDescription="Archived" />
