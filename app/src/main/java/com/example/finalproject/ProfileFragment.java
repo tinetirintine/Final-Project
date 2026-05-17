@@ -37,6 +37,7 @@ public class ProfileFragment extends Fragment {
 
     private EditText etName, etEmail, etPhone, etGender, etBirth;
     private ImageButton btnEditProfile;
+    private Button btnLogout;
 
     private final ActivityResultLauncher<String> pickImageLauncher = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -134,7 +135,7 @@ public class ProfileFragment extends Fragment {
 
         btnEditProfile.setOnClickListener(v -> toggleEditMode());
 
-        Button btnLogout = view.findViewById(R.id.btnLogout);
+        btnLogout = view.findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(v -> {
             if (getActivity() != null) {
                 Intent intent = new Intent(getActivity(), LoginAndSignup.class);
@@ -148,59 +149,90 @@ public class ProfileFragment extends Fragment {
     }
 
     private void toggleEditMode() {
-        isEditMode = !isEditMode;
+        if (isEditMode) {
+            // We are trying to SAVE. Check validation first.
+            saveProfileChanges();
+        } else {
+            // We are starting to EDIT.
+            isEditMode = true;
+            updateUIForMode();
+            btnEditProfile.setImageResource(android.R.drawable.ic_menu_save);
+            Toast.makeText(getContext(), "Editing Enabled", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    private void updateUIForMode() {
         etName.setEnabled(isEditMode);
         etEmail.setEnabled(isEditMode);
         etPhone.setEnabled(isEditMode);
         etGender.setEnabled(isEditMode);
         etBirth.setEnabled(isEditMode);
-
-        if (isEditMode) {
-            btnEditProfile.setImageResource(android.R.drawable.ic_menu_save);
-            Toast.makeText(getContext(), "Editing Enabled", Toast.LENGTH_SHORT).show();
-        } else {
-            btnEditProfile.setImageResource(android.R.drawable.ic_menu_edit);
-            saveProfileChanges();
+        
+        // Hide logout button when editing
+        if (btnLogout != null) {
+            btnLogout.setVisibility(isEditMode ? View.GONE : View.VISIBLE);
         }
     }
 
     private void saveProfileChanges() {
         if (currentUser == null) return;
 
+        String newName = etName.getText().toString().trim();
         String newEmail = etEmail.getText().toString().trim();
-        
-        // If email is changing, check if the new one is already taken
+        String newPhone = etPhone.getText().toString().trim();
+
+        // 1. Validate Name (no numbers)
+        if (newName.matches(".*\\d.*")) {
+            Toast.makeText(getContext(), "Name cannot contain numbers", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 2. Validate Email format
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+            Toast.makeText(getContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 3. Validate phone number (Philippine format)
+        if (!newPhone.matches("^(09|\\+639)\\d{9}$")) {
+            Toast.makeText(getContext(), "Invalid Philippine phone number (11 digits or +63)", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 4. If email is changing, check if the new one is already taken
         if (!newEmail.equalsIgnoreCase(currentUser.email)) {
             userRepository.getUserByEmail(newEmail, existingUser -> {
                 if (existingUser != null) {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), "Email already in use by another account", Toast.LENGTH_SHORT).show();
-                            etEmail.setText(currentUser.email); // Revert to old email
                         });
                     }
                 } else {
-                    performUpdate(newEmail);
+                    performUpdate(newName, newEmail, newPhone);
                 }
             });
         } else {
-            performUpdate(newEmail);
+            performUpdate(newName, newEmail, newPhone);
         }
     }
 
-    private void performUpdate(String newEmail) {
-        currentUser.fullName = etName.getText().toString().trim();
+    private void performUpdate(String newName, String newEmail, String newPhone) {
+        currentUser.fullName = newName;
         currentUser.email = newEmail;
-        currentUser.phone = etPhone.getText().toString().trim();
+        currentUser.phone = newPhone;
         currentUser.gender = etGender.getText().toString().trim();
         currentUser.birthday = etBirth.getText().toString().trim();
 
         userRepository.updateUser(currentUser, () -> {
             if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> 
-                    Toast.makeText(getContext(), "Profile Updated Successfully. Use your new email to login next time.", Toast.LENGTH_LONG).show()
-                );
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Profile Updated Successfully", Toast.LENGTH_SHORT).show();
+                    // SUCCESS: Turn off edit mode and lock fields
+                    isEditMode = false;
+                    updateUIForMode();
+                    btnEditProfile.setImageResource(android.R.drawable.ic_menu_edit);
+                });
             }
         });
     }
