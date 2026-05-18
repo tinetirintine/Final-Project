@@ -236,6 +236,7 @@
             app:layout_constraintTop_toBottomOf="@id/etBirth"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

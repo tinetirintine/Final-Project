@@ -67,20 +67,6 @@ public class NoteRepository {
         });
     }
 
-    public void getDoneNotes(int userId, final Callback<List<Note>> callback) {
-        executorService.execute(() -> {
-            List<Note> result = noteDao.getDoneNotesForUser(userId);
-            callback.onResult(result);
-        });
-    }
-
-    public void getUndoneNotes(int userId, final Callback<List<Note>> callback) {
-        executorService.execute(() -> {
-            List<Note> result = noteDao.getUndoneNotesForUser(userId);
-            callback.onResult(result);
-        });
-    }
-
     public void getNotesByCategory(int userId, String category, final Callback<List<Note>> callback) {
         executorService.execute(() -> {
             List<Note> result;
