@@ -1,5 +1,6 @@
 package com.example.finalproject;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.text.Html;
@@ -85,17 +86,30 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
         if (shouldCrossOut) {
             holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.tvContent.setPaintFlags(holder.tvContent.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            holder.tvTitle.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorDone));
+            int doneColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.colorDone);
+            holder.tvTitle.setTextColor(doneColor);
+            holder.tvContent.setTextColor(doneColor);
         } else {
             holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
             holder.tvContent.setPaintFlags(holder.tvContent.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-            holder.tvTitle.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+            
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+            holder.tvTitle.setTextColor(typedValue.data);
+            
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.textColorSecondary, typedValue, true);
+            holder.tvContent.setTextColor(typedValue.data);
         }
+
+        // Fix: Make category text black for better contrast on pastel backgrounds in light mode
+        holder.tvCategory.setTextColor(Color.BLACK);
 
         if (isPast && !note.isDone()) {
             holder.tvDateTime.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorPastDue));
         } else {
-            holder.tvDateTime.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.welcome_subtitle));
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.textColorSecondary, typedValue, true);
+            holder.tvDateTime.setTextColor(typedValue.data);
         }
 
         holder.cbDone.setOnCheckedChangeListener(null);

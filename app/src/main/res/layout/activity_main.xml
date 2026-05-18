@@ -33,7 +33,7 @@
                     android:id="@+id/btnMenu"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@android:drawable/ic_menu_sort_by_size"
                     app:tint="@color/brand_purple"
                     android:contentDescription="@string/nav_menu" />
@@ -86,8 +86,8 @@
                         android:layout_marginEnd="8dp"
                         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                         app:cornerRadius="20dp"
-                        android:textColor="@color/white"
-                        app:backgroundTint="#222222" />
+                        android:textColor="?attr/colorOnCategoryUnselected"
+                        app:backgroundTint="?attr/colorCategoryUnselected" />
 
                     <Button
                         android:id="@+id/btnSchool"
@@ -99,8 +99,8 @@
                         android:layout_marginEnd="8dp"
                         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                         app:cornerRadius="20dp"
-                        android:textColor="@color/white"
-                        app:backgroundTint="#222222" />
+                        android:textColor="?attr/colorOnCategoryUnselected"
+                        app:backgroundTint="?attr/colorCategoryUnselected" />
 
                     <Button
                         android:id="@+id/btnWork"
@@ -111,8 +111,8 @@
                         android:minHeight="0dp"
                         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                         app:cornerRadius="20dp"
-                        android:textColor="@color/white"
-                        app:backgroundTint="#222222" />
+                        android:textColor="?attr/colorOnCategoryUnselected"
+                        app:backgroundTint="?attr/colorCategoryUnselected" />
 
                 </LinearLayout>
 
@@ -148,7 +148,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="?attr/colorSurface"
-        app:itemTextColor="?android:attr/textColorPrimary"
         app:itemIconTint="@color/brand_purple"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu" />

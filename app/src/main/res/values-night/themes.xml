@@ -15,6 +15,8 @@
         <item name="colorOnSurface">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorCategoryUnselected">@color/category_unselected_dark</item>
+        <item name="colorOnCategoryUnselected">@color/white</item>
 
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>

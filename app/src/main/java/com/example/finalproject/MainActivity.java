@@ -68,8 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else {
-                    setEnabled(false);
-                    onBackPressed();
+                    finish();
                 }
             }
         });
@@ -175,13 +174,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void updateButtonSelection(Button selectedButton) {
+        android.util.TypedValue typedValue = new android.util.TypedValue();
+        getTheme().resolveAttribute(R.attr.colorCategoryUnselected, typedValue, true);
+        int unselectedBg = typedValue.data;
+        getTheme().resolveAttribute(R.attr.colorOnCategoryUnselected, typedValue, true);
+        int unselectedText = typedValue.data;
+
         for (Button btn : categoryButtons) {
             if (btn == selectedButton) {
                 btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brand_purple)));
                 btn.setTextColor(ContextCompat.getColor(this, R.color.white));
             } else {
-                btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#222222")));
-                btn.setTextColor(ContextCompat.getColor(this, R.color.white));
+                btn.setBackgroundTintList(ColorStateList.valueOf(unselectedBg));
+                btn.setTextColor(unselectedText);
             }
         }
     }
@@ -234,7 +239,9 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.getMenu().add("Work Notes");
 
         popupMenu.setOnMenuItemClickListener(item -> {
-            String title = item.getTitle().toString();
+            CharSequence titleChar = item.getTitle();
+            if (titleChar == null) return false;
+            String title = titleChar.toString();
             Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
             intent.putExtra("user_id", userId);
 

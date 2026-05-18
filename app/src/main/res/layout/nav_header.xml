@@ -26,7 +26,7 @@
             android:id="@+id/btnThemeToggleHeader"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_sun"
             app:tint="@color/brand_purple"
             android:contentDescription="Toggle Theme" />
