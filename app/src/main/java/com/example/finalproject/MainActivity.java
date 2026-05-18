@@ -144,6 +144,8 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(NotesFragment.newInstance(userId, "All"));
             } else if (itemId == R.id.nav_favorites) {
                 loadFragment(NotesFragment.newInstance(userId, "Favorites"));
+            } else if (itemId == R.id.nav_checklist) {
+                loadFragment(NotesFragment.newInstance(userId, "Checklist"));
             } else if (itemId == R.id.nav_archive) {
                 loadFragment(NotesFragment.newInstance(userId, "Archive"));
             } else if (itemId == R.id.nav_trash) {
@@ -199,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             String cat = args != null ? args.getString("category") : "All";
             
             // "Main Notes" are All, Personal, School, Work
-            if ("Favorites".equals(cat) || "Archive".equals(cat) || "Trash".equals(cat)) {
+            if ("Favorites".equals(cat) || "Archive".equals(cat) || "Trash".equals(cat) || "Checklist".equals(cat)) {
                 topCategories.setVisibility(View.GONE);
                 isMainNotesSection = false;
             } else {

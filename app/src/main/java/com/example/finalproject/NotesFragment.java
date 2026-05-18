@@ -58,7 +58,11 @@ public class NotesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_notes, container, false);
 
         TextView tvLabel = view.findViewById(R.id.tvCategoryLabel);
-        tvLabel.setText(getString(R.string.category_notes_label, category));
+        if ("Checklist".equals(category)) {
+            tvLabel.setText("Checklist Notes");
+        } else {
+            tvLabel.setText(getString(R.string.category_notes_label, category));
+        }
 
         Button btnEmptyTrash = view.findViewById(R.id.btnEmptyTrash);
         if ("Trash".equals(category)) {
@@ -223,7 +227,7 @@ public class NotesFragment extends Fragment {
                                 intent.putExtra("note_archived", note.isArchived());
                                 intent.putExtra("note_done", note.isDone());
                                 intent.putExtra("note_image", note.getImagePath());
-                                intent.putExtra("is_read_only", "Trash".equals(category));
+                                intent.putExtra("is_read_only", "Trash".equals(category) || "Checklist".equals(category));
                                 startActivity(intent);
                             }
                         });
@@ -244,6 +248,8 @@ public class NotesFragment extends Fragment {
             noteRepository.getArchivedNotes(userId, callback);
         } else if (category.equals("Trash")) {
             noteRepository.getDeletedNotes(userId, callback);
+        } else if (category.equals("Checklist")) {
+            noteRepository.getDoneNotes(userId, callback);
         } else {
             noteRepository.getNotesByCategory(userId, category, callback);
         }

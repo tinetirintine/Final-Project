@@ -24,6 +24,12 @@ public interface NoteDao {
     @Query("SELECT * FROM notes WHERE userId = :userId AND isDeleted = 0")
     List<Note> getAllNotesForUser(int userId);
 
+    @Query("SELECT * FROM notes WHERE userId = :userId AND isDone = 1 AND isDeleted = 0")
+    List<Note> getDoneNotesForUser(int userId);
+
+    @Query("SELECT * FROM notes WHERE userId = :userId AND isDone = 0 AND isDeleted = 0")
+    List<Note> getUndoneNotesForUser(int userId);
+
     @Query("SELECT * FROM notes WHERE userId = :userId AND isFavorite = 1 AND isDeleted = 0")
     List<Note> getFavoriteNotesForUser(int userId);
 
