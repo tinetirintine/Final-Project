@@ -18,4 +18,7 @@ public interface UserDao {
 
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     User getUserByEmail(String email);
+
+    @Query("UPDATE users SET password = :newHashedPassword WHERE email = :email")
+    void updatePassword(String email, String newHashedPassword);
 }

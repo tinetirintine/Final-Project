@@ -85,6 +85,16 @@
             android:textColor="@color/text_secondary"
             android:textSize="18sp" />
 
+        <TextView
+            android:id="@+id/tvUserDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text=""
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:textAlignment="center" />
+
         <Button
             android:id="@+id/btnContinue"
             android:layout_width="240dp"

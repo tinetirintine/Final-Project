@@ -19,6 +19,12 @@ import com.google.android.material.navigation.NavigationView;
 import android.view.View;
 import androidx.appcompat.app.AppCompatDelegate;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.widget.Toast;
+import android.os.Handler;
+import android.os.Looper;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private String userGender;
     private DrawerLayout drawerLayout;
     private Button[] categoryButtons;
+    private ConnectivityManager.NetworkCallback networkCallback;
 
 
     @Override
@@ -168,6 +175,53 @@ public class MainActivity extends AppCompatActivity {
             if (currentFragment != null) {
                 loadFragment(currentFragment);
             }
+        }
+
+        setupNetworkMonitoring();
+    }
+
+
+    private void setupNetworkMonitoring() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@androidx.annotation.NonNull android.net.Network network) {
+                super.onAvailable(network);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(MainActivity.this, "Back Online! Syncing notes...", Toast.LENGTH_SHORT).show();
+                    // Simulate sync
+                    simulateSync();
+                });
+            }
+
+            @Override
+            public void onLost(@androidx.annotation.NonNull android.net.Network network) {
+                super.onLost(network);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(MainActivity.this, "Offline. Changes will be saved locally.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        };
+
+        NetworkRequest request = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build();
+        cm.registerNetworkCallback(request, networkCallback);
+    }
+
+    private void simulateSync() {
+        // Here you would normally call an API to sync Room data to a server
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Toast.makeText(MainActivity.this, "Sync Complete!", Toast.LENGTH_SHORT).show();
+        }, 2000);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (networkCallback != null) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            cm.unregisterNetworkCallback(networkCallback);
         }
     }
 

@@ -60,6 +60,13 @@ public class UserRepository {
         });
     }
 
+    public void updatePassword(String email, String newHashedPassword, Runnable onComplete) {
+        executorService.execute(() -> {
+            userDao.updatePassword(email, newHashedPassword);
+            if (onComplete != null) onComplete.run();
+        });
+    }
+
     public interface Callback<T> {
         void onResult(T result);
     }

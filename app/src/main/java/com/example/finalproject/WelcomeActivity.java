@@ -30,6 +30,7 @@ public class WelcomeActivity extends AppCompatActivity {
         Button btnContinue = findViewById(R.id.btnContinue);
         TextView tvWelcomeTitle = findViewById(R.id.tvWelcomeTitle);
         TextView tvWelcomeSubtitle = findViewById(R.id.tvWelcomeSubtitle);
+        TextView tvUserDetails = findViewById(R.id.tvUserDetails);
 
 
         int userId = getIntent().getIntExtra("user_id", -1);
@@ -46,6 +47,14 @@ public class WelcomeActivity extends AppCompatActivity {
 
         if (userEmail != null && tvWelcomeSubtitle != null) {
             tvWelcomeSubtitle.setText("Login Successful: " + userEmail);
+        }
+
+        if (tvUserDetails != null) {
+            StringBuilder details = new StringBuilder();
+            if (userPhone != null) details.append("Phone: ").append(userPhone).append("\n");
+            if (userBirthday != null) details.append("Birthday: ").append(userBirthday).append("\n");
+            if (userGender != null) details.append("Gender: ").append(userGender);
+            tvUserDetails.setText(details.toString());
         }
 
 
