@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/mainAddNote"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/windowBackground"
@@ -29,7 +29,7 @@
                 android:id="@+id/btnBack"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_media_previous"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Back"/>
@@ -46,7 +46,8 @@
                 android:backgroundTint="?attr/colorSurface"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginVertical="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:paddingHorizontal="16dp"
                 android:gravity="center_vertical"
                 android:inputType="textPersonName" />
@@ -55,7 +56,7 @@
                 android:id="@+id/btnUndo"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_revert"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Undo"/>
@@ -65,7 +66,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:rotationY="180"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_revert"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Redo"/>
@@ -74,7 +75,7 @@
                 android:id="@+id/btnDone"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_save"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Done"/>
@@ -109,7 +110,7 @@
                 android:id="@+id/btnCloseSearch"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
                 app:tint="@color/white" />
         </LinearLayout>
@@ -208,7 +209,8 @@
                 android:id="@+id/cardImage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
                 android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
@@ -228,7 +230,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
                 android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
@@ -279,7 +282,7 @@
                     android:id="@+id/btnCaps"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_case"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Toggle Case" />
@@ -288,7 +291,7 @@
                     android:id="@+id/btnBold"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_bold"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Bold" />
@@ -297,7 +300,7 @@
                     android:id="@+id/btnItalic"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_italic"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Italic" />
@@ -306,7 +309,7 @@
                     android:id="@+id/btnUnderline"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_underline"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Underline" />
@@ -315,7 +318,7 @@
                     android:id="@+id/btnBullet"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_list_bulleted"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Bullet List" />
@@ -324,7 +327,7 @@
                     android:id="@+id/btnNumber"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_list_numbered"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Numbered List" />
@@ -344,7 +347,7 @@
                     android:id="@+id/btnAlignLeft"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_align_left"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Align Left" />
@@ -353,7 +356,7 @@
                     android:id="@+id/btnAlignCenter"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_align_center"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Align Center" />
@@ -362,7 +365,7 @@
                     android:id="@+id/btnAlignRight"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_format_align_right"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Align Right" />
@@ -371,7 +374,7 @@
                     android:id="@+id/btnChecklist"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_checkbox_checked"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Checklist" />
@@ -380,7 +383,7 @@
                     android:id="@+id/btnInsertImage"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@android:drawable/ic_menu_gallery"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Insert Image" />
@@ -395,7 +398,7 @@
                     android:id="@+id/btnFavorite"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_heart_outline"
                     app:tint="@color/colorFavorite"
                     android:contentDescription="Favorite" />
@@ -404,7 +407,7 @@
                     android:id="@+id/btnPin"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_pin_outline"
                     app:tint="@color/colorPin"
                     android:contentDescription="Pin" />
@@ -413,7 +416,7 @@
                     android:id="@+id/btnArchive"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_archive"
                     app:tint="@color/colorArchive"
                     android:contentDescription="Archive" />
@@ -422,7 +425,7 @@
                     android:id="@+id/btnSearch"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Search"
                     android:src="@android:drawable/ic_menu_search"
                     app:tint="@color/brand_purple" />

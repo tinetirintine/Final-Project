@@ -33,7 +33,6 @@
                     android:id="@+id/btnMenu"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@android:drawable/ic_menu_sort_by_size"
                     app:tint="@color/brand_purple"
                     android:contentDescription="@string/nav_menu" />
