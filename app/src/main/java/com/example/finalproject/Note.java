@@ -19,6 +19,7 @@ public class Note {
     private boolean isDeleted;
     private boolean isDone;
     private String imagePath; // New field for image
+    private long archivedAt; // Timestamp for when the note was archived
 
     public Note(int userId, String title, String content, String category, long dateMillis, String time) {
         this.userId = userId;
@@ -136,5 +137,13 @@ public class Note {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public long getArchivedAt() {
+        return archivedAt;
+    }
+
+    public void setArchivedAt(long archivedAt) {
+        this.archivedAt = archivedAt;
     }
 }

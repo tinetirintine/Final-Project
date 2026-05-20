@@ -156,7 +156,7 @@
                 android:layout_height="44dp"
                 android:layout_marginStart="8dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@drawable/ic_delete_filled"
                 app:tint="@color/colorTrash"
                 android:contentDescription="@string/delete_note" />
         </LinearLayout>

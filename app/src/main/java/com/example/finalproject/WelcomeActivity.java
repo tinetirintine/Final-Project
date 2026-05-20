@@ -44,23 +44,28 @@ public class WelcomeActivity extends AppCompatActivity {
             tvWelcomeTitle.setText("Welcome, " + userName + "!");
         }
 
-
-        if (userEmail != null && tvWelcomeSubtitle != null) {
-            tvWelcomeSubtitle.setText("Login Successful: " + userEmail);
+        if (tvWelcomeSubtitle != null) {
+            tvWelcomeSubtitle.setText("Login Successful");
         }
 
-        if (tvUserDetails != null) {
-            StringBuilder details = new StringBuilder();
-            if (userPhone != null) details.append("Phone: ").append(userPhone).append("\n");
-            if (userBirthday != null) details.append("Birthday: ").append(userBirthday).append("\n");
-            if (userGender != null) details.append("Gender: ").append(userGender);
-            tvUserDetails.setText(details.toString());
+        if (userEmail != null && tvUserDetails != null) {
+            tvUserDetails.setText(userEmail);
         }
 
 
         if (btnContinue != null) {
             btnContinue.setOnClickListener(v -> {
-                Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                SharedPreferences guidePrefs = getSharedPreferences("GuidePrefs", MODE_PRIVATE);
+                String guideKey = "hasSeenGuide_" + (userEmail != null ? userEmail : "default");
+                boolean hasSeenGuide = guidePrefs.getBoolean(guideKey, false);
+
+                Intent intent;
+                if (!hasSeenGuide) {
+                    intent = new Intent(WelcomeActivity.this, GuideActivity.class);
+                } else {
+                    intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                }
+
                 intent.putExtra("user_id", userId);
                 intent.putExtra("email", userEmail);
                 intent.putExtra("name", userName);

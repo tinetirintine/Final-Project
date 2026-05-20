@@ -44,4 +44,5 @@
     <color name="category_unselected_light">#F0F0F0</color>
     <color name="category_unselected_dark">#222222</color>
     <color name="colorPastDue">#EF5350</color>
+    <color name="branding_note_color">#000000</color>
 </resources>

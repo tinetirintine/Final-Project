@@ -56,6 +56,21 @@ public class AddNoteActivity extends AppCompatActivity {
     private boolean isPinned = false;
     private boolean isArchived = false;
     private boolean isDone = false;
+    private long archivedAt;
+
+    private String originalTitle = "";
+    private String originalContent = "";
+    private String originalCategory = "";
+    private long originalDateMillis;
+    private String originalTime = "";
+    private String originalImagePath = null;
+    private boolean originalFavorite;
+    private boolean originalPinned;
+    private boolean originalArchived;
+    private boolean originalDone;
+
+    private Spinner spinnerCategory;
+    private ImageButton btnDoneAction;
 
     private final Stack<Spannable> undoStack = new Stack<>();
     private final Stack<Spannable> redoStack = new Stack<>();
@@ -101,10 +116,10 @@ public class AddNoteActivity extends AppCompatActivity {
         editTextNote = findViewById(R.id.editTextNote);
         ivNoteImage = findViewById(R.id.ivNoteImage);
         cardImage = findViewById(R.id.cardImage);
-        Spinner spinnerCategory = findViewById(R.id.spinnerCategory);
+        spinnerCategory = findViewById(R.id.spinnerCategory);
         btnPickDate = findViewById(R.id.btnPickDate);
         btnPickTime = findViewById(R.id.btnPickTime);
-        ImageButton btnDone = findViewById(R.id.btnDone);
+        btnDoneAction = findViewById(R.id.btnDone);
         ImageButton btnBack = findViewById(R.id.btnBack);
 
         // Toolbar buttons
@@ -160,6 +175,7 @@ public class AddNoteActivity extends AppCompatActivity {
             isFavorite = getIntent().getBooleanExtra("note_favorite", false);
             isPinned = getIntent().getBooleanExtra("note_pinned", false);
             isArchived = getIntent().getBooleanExtra("note_archived", false);
+            archivedAt = getIntent().getLongExtra("note_archived_at", 0);
             isDone = getIntent().getBooleanExtra("note_done", false);
 
             // Set spinner selection
@@ -301,45 +317,7 @@ public class AddNoteActivity extends AppCompatActivity {
             }
         });
 
-        btnDone.setOnClickListener(v -> {
-            String title = editTitle.getText().toString().trim();
-            // Save content as HTML to preserve formatting
-            String content = toHtml(editTextNote.getText());
-            String category = spinnerCategory.getSelectedItem().toString();
-
-            if (editTextNote.getText().toString().trim().isEmpty()) {
-                Toast.makeText(this, "Please enter some text", Toast.LENGTH_SHORT).show();
-            } else {
-                new androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle("Save Note")
-                        .setMessage("Are you sure you want to save this note?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            Note note = new Note(userId, title, content, category, selectedDateMillis, selectedTime);
-                            note.setFavorite(isFavorite);
-                            note.setPinned(isPinned);
-                            note.setArchived(isArchived);
-                            note.setDone(isDone);
-                            note.setImagePath(selectedImagePath);
-
-                            if (noteId != -1) {
-                                note.setId(noteId);
-                                noteRepository.updateNote(note, () -> runOnUiThread(() -> {
-                                    Toast.makeText(this, "Task Updated!", Toast.LENGTH_SHORT).show();
-                                    setResult(RESULT_OK);
-                                    finish();
-                                }));
-                            } else {
-                                noteRepository.addNote(note, () -> runOnUiThread(() -> {
-                                    Toast.makeText(this, "Task Saved!", Toast.LENGTH_SHORT).show();
-                                    setResult(RESULT_OK);
-                                    finish();
-                                }));
-                            }
-                        })
-                        .setNegativeButton("No", null)
-                        .show();
-            }
-        });
+        btnDoneAction.setOnClickListener(v -> saveNote(true));
 
         // Toolbar Logic
         btnBold.setOnClickListener(v -> toggleStyleSpan(Typeface.BOLD));
@@ -370,6 +348,9 @@ public class AddNoteActivity extends AppCompatActivity {
 
         btnArchive.setOnClickListener(v -> {
             isArchived = !isArchived;
+            if (isArchived) {
+                archivedAt = System.currentTimeMillis();
+            }
             updateStatusButtons(btnFavorite, btnPin, btnArchive);
             Toast.makeText(this, isArchived ? "Note Archived" : "Note Unarchived", Toast.LENGTH_SHORT).show();
         });
@@ -496,6 +477,9 @@ public class AddNoteActivity extends AppCompatActivity {
         if (getIntent().getBooleanExtra("is_read_only", false)) {
             setReadOnlyMode();
         }
+
+        // Capture initial state for change detection
+        captureOriginalState();
     }
 
     // ---- Fixed: API 24+ safe Html conversion ----
@@ -785,16 +769,93 @@ public class AddNoteActivity extends AppCompatActivity {
     }
 
     private void handleBackPress() {
-        if (!editTextNote.getText().toString().trim().isEmpty()) {
+        if (hasChanged()) {
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Unsaved Changes")
                     .setMessage("Do you want to save your changes before leaving?")
-                    .setPositiveButton("Save", (dialog, which) -> findViewById(R.id.btnDone).performClick())
+                    .setPositiveButton("Save", (dialog, which) -> saveNote(false))
                     .setNegativeButton("Discard", (dialog, which) -> finish())
                     .setNeutralButton("Cancel", null)
                     .show();
         } else {
             finish();
+        }
+    }
+
+    private boolean hasChanged() {
+        String currentTitle = editTitle.getText().toString().trim();
+        String currentContent = toHtml(editTextNote.getText());
+        String currentCategory = spinnerCategory.getSelectedItem().toString();
+
+        return !currentTitle.equals(originalTitle) ||
+                !currentContent.equals(originalContent) ||
+                !currentCategory.equals(originalCategory) ||
+                selectedDateMillis != originalDateMillis ||
+                !selectedTime.equals(originalTime) ||
+                !Objects.equals(selectedImagePath, originalImagePath) ||
+                isFavorite != originalFavorite ||
+                isPinned != originalPinned ||
+                isArchived != originalArchived ||
+                isDone != originalDone;
+    }
+
+    private void captureOriginalState() {
+        originalTitle = editTitle.getText().toString().trim();
+        originalContent = toHtml(editTextNote.getText());
+        originalCategory = spinnerCategory.getSelectedItem() != null ? spinnerCategory.getSelectedItem().toString() : "";
+        originalDateMillis = selectedDateMillis;
+        originalTime = selectedTime;
+        originalImagePath = selectedImagePath;
+        originalFavorite = isFavorite;
+        originalPinned = isPinned;
+        originalArchived = isArchived;
+        originalDone = isDone;
+    }
+
+    private void saveNote(boolean showConfirmation) {
+        String title = editTitle.getText().toString().trim();
+        String content = toHtml(editTextNote.getText());
+        String category = spinnerCategory.getSelectedItem().toString();
+
+        if (editTextNote.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Please enter some text", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Runnable performSave = () -> {
+            Note note = new Note(userId, title, content, category, selectedDateMillis, selectedTime);
+            note.setFavorite(isFavorite);
+            note.setPinned(isPinned);
+            note.setArchived(isArchived);
+            note.setArchivedAt(archivedAt);
+            note.setDone(isDone);
+            note.setImagePath(selectedImagePath);
+
+            if (noteId != -1) {
+                note.setId(noteId);
+                noteRepository.updateNote(note, () -> runOnUiThread(() -> {
+                    Toast.makeText(this, "Task Updated!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
+                }));
+            } else {
+                noteRepository.addNote(note, () -> runOnUiThread(() -> {
+                    Toast.makeText(this, "Task Saved!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
+                }));
+            }
+        };
+
+        if (showConfirmation) {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Save Note")
+                    .setMessage("Are you sure you want to save this note?")
+                    .setPositiveButton("Yes", (dialog, which) -> performSave.run())
+                    .setNegativeButton("No", null)
+                    .show();
+        } else {
+            performSave.run();
         }
     }
 }

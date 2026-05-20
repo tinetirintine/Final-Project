@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -125,9 +127,14 @@ public class NotesFragment extends Fragment {
         ImageButton btnFavorite = dialogView.findViewById(R.id.btnFavoriteAction);
         ImageButton btnClose = dialogView.findViewById(R.id.btnCloseAction);
 
-        btnPin.setColorFilter(note.isPinned() ? ContextCompat.getColor(requireContext(), R.color.colorPin) : Color.GRAY);
-        btnArchive.setColorFilter(note.isArchived() ? ContextCompat.getColor(requireContext(), R.color.colorArchive) : Color.GRAY);
-        btnFavorite.setColorFilter(note.isFavorite() ? ContextCompat.getColor(requireContext(), R.color.colorFavorite) : Color.GRAY);
+        btnPin.setImageResource(note.isPinned() ? R.drawable.ic_pin_filled : R.drawable.ic_pin_outline);
+        btnPin.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorPin));
+        
+        btnArchive.setImageResource(R.drawable.ic_archive);
+        btnArchive.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorArchive));
+        
+        btnFavorite.setImageResource(note.isFavorite() ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+        btnFavorite.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorFavorite));
 
         btnPin.setOnClickListener(v -> {
             note.setPinned(!note.isPinned());
@@ -136,7 +143,11 @@ public class NotesFragment extends Fragment {
         });
 
         btnArchive.setOnClickListener(v -> {
-            note.setArchived(!note.isArchived());
+            boolean newState = !note.isArchived();
+            note.setArchived(newState);
+            if (newState) {
+                note.setArchivedAt(System.currentTimeMillis());
+            }
             noteRepository.updateNote(note, () -> refreshNotes());
             dialog.dismiss();
         });
@@ -225,6 +236,7 @@ public class NotesFragment extends Fragment {
                                 intent.putExtra("note_favorite", note.isFavorite());
                                 intent.putExtra("note_pinned", note.isPinned());
                                 intent.putExtra("note_archived", note.isArchived());
+                                intent.putExtra("note_archived_at", note.getArchivedAt());
                                 intent.putExtra("note_done", note.isDone());
                                 intent.putExtra("note_image", note.getImagePath());
                                 intent.putExtra("is_read_only", "Trash".equals(category) || "Checklist".equals(category));

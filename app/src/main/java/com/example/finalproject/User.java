@@ -15,6 +15,9 @@ public class User {
     public String birthday;
     public String gender;
     public String profileImage;
+    public boolean isPhoneVerified = false;
+    public boolean isMfaVerified = false; // Trust device for this user
+    public long lastMfaVerifiedAt = 0; // Timestamp for trust expiration
 
     public User(String fullName, String email, String password, String phone, String birthday, String gender) {
         this.fullName = fullName;
