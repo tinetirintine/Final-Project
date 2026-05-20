@@ -292,7 +292,14 @@ public class AddNoteActivity extends AppCompatActivity {
 
         btnPickDate.setOnClickListener(v -> showDatePicker());
         btnPickTime.setOnClickListener(v -> showTimePicker());
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> handleBackPress());
+
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBackPress();
+            }
+        });
 
         btnDone.setOnClickListener(v -> {
             String title = editTitle.getText().toString().trim();
@@ -303,27 +310,34 @@ public class AddNoteActivity extends AppCompatActivity {
             if (editTextNote.getText().toString().trim().isEmpty()) {
                 Toast.makeText(this, "Please enter some text", Toast.LENGTH_SHORT).show();
             } else {
-                Note note = new Note(userId, title, content, category, selectedDateMillis, selectedTime);
-                note.setFavorite(isFavorite);
-                note.setPinned(isPinned);
-                note.setArchived(isArchived);
-                note.setDone(isDone);
-                note.setImagePath(selectedImagePath);
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Save Note")
+                        .setMessage("Are you sure you want to save this note?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            Note note = new Note(userId, title, content, category, selectedDateMillis, selectedTime);
+                            note.setFavorite(isFavorite);
+                            note.setPinned(isPinned);
+                            note.setArchived(isArchived);
+                            note.setDone(isDone);
+                            note.setImagePath(selectedImagePath);
 
-                if (noteId != -1) {
-                    note.setId(noteId);
-                    noteRepository.updateNote(note, () -> runOnUiThread(() -> {
-                        Toast.makeText(this, "Task Updated!", Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_OK);
-                        finish();
-                    }));
-                } else {
-                    noteRepository.addNote(note, () -> runOnUiThread(() -> {
-                        Toast.makeText(this, "Task Saved!", Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_OK);
-                        finish();
-                    }));
-                }
+                            if (noteId != -1) {
+                                note.setId(noteId);
+                                noteRepository.updateNote(note, () -> runOnUiThread(() -> {
+                                    Toast.makeText(this, "Task Updated!", Toast.LENGTH_SHORT).show();
+                                    setResult(RESULT_OK);
+                                    finish();
+                                }));
+                            } else {
+                                noteRepository.addNote(note, () -> runOnUiThread(() -> {
+                                    Toast.makeText(this, "Task Saved!", Toast.LENGTH_SHORT).show();
+                                    setResult(RESULT_OK);
+                                    finish();
+                                }));
+                            }
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
             }
         });
 
@@ -767,6 +781,20 @@ public class AddNoteActivity extends AppCompatActivity {
         BackgroundColorSpan[] spans = editable.getSpans(0, editable.length(), BackgroundColorSpan.class);
         for (BackgroundColorSpan span : spans) {
             editable.removeSpan(span);
+        }
+    }
+
+    private void handleBackPress() {
+        if (!editTextNote.getText().toString().trim().isEmpty()) {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Unsaved Changes")
+                    .setMessage("Do you want to save your changes before leaving?")
+                    .setPositiveButton("Save", (dialog, which) -> findViewById(R.id.btnDone).performClick())
+                    .setNegativeButton("Discard", (dialog, which) -> finish())
+                    .setNeutralButton("Cancel", null)
+                    .show();
+        } else {
+            finish();
         }
     }
 }
