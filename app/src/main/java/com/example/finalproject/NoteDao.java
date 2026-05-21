@@ -9,8 +9,8 @@ import java.util.List;
 
 @Dao
 public interface NoteDao {
-    @Insert
-    void insertNote(Note note);
+    @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    long insertNote(Note note);
 
     @Update
     void updateNote(Note note);
@@ -44,4 +44,19 @@ public interface NoteDao {
 
     @Query("DELETE FROM notes WHERE userId = :userId AND isDeleted = 1")
     void emptyTrash(int userId);
+
+    @Query("SELECT * FROM notes WHERE id = :noteId LIMIT 1")
+    Note getNoteById(int noteId);
+
+    @Query("DELETE FROM notes WHERE userId = :userId")
+    void deleteNotesByUserId(int userId);
+
+    @Query("DELETE FROM notes WHERE userId != :adminId")
+    void nukeNotesExceptAdmin(int adminId);
+
+    @Query("DELETE FROM notes")
+    void nukeNotes();
+
+    @Query("SELECT * FROM notes WHERE isDone = 0 AND isDeleted = 0 AND isArchived = 0 AND time != 'No Time'")
+    List<Note> getAllActiveNotesAcrossUsers();
 }

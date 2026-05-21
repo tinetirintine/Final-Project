@@ -10,4 +10,8 @@
     <include domain="database" path="final_project_db-shm"/>
     <include domain="database" path="final_project_db-wal"/>
     <include domain="sharedpref" path="."/>
+    <!-- Exclude security-sensitive data from syncing to other devices -->
+    <exclude domain="sharedpref" path="DeviceTrust.xml"/>
+    <exclude domain="sharedpref" path="LoginPrefs.xml"/>
+    <exclude domain="sharedpref" path="BioPrefs.xml"/>
 </full-backup-content>

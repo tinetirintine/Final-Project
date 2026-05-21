@@ -59,15 +59,17 @@ public class ResetPasswordActivity extends AppCompatActivity {
             } else if (!Objects.equals(newPassword, confirm)) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             } else {
-                userRepository.getUserByEmail(email, user -> {
-                    if (user != null) {
-                        if (SecurityUtils.hashPassword(newPassword).equals(user.password)) {
-                            runOnUiThread(() -> Toast.makeText(this, "You cannot use your current password", Toast.LENGTH_SHORT).show());
-                        } else {
-                            runOnUiThread(() -> showResetVerificationDialog(email, newPassword));
-                        }
+                userRepository.checkUserExists(email, exists -> {
+                    if (exists) {
+                        userRepository.getUserByEmail(email, user -> {
+                            if (user != null && SecurityUtils.hashPassword(newPassword).equals(user.password)) {
+                                runOnUiThread(() -> Toast.makeText(this, "You cannot use your current password", Toast.LENGTH_SHORT).show());
+                            } else {
+                                runOnUiThread(() -> showResetVerificationDialog(email, newPassword));
+                            }
+                        });
                     } else {
-                        runOnUiThread(() -> Toast.makeText(this, "Email not found", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(this, "No account found with this email", Toast.LENGTH_SHORT).show());
                     }
                 });
             }

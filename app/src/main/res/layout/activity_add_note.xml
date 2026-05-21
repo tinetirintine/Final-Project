@@ -204,27 +204,13 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Image View -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardImage"
+            <!-- Multiple Images View -->
+            <LinearLayout
+                android:id="@+id/layoutImages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/ivNoteImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:maxHeight="300dp"
-                    android:scaleType="fitCenter" />
-            </com.google.android.material.card.MaterialCardView>
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp" />
 
             <!-- Note Area -->
             <com.google.android.material.card.MaterialCardView
@@ -252,6 +238,14 @@
                     android:lineSpacingExtra="4dp"
                     android:inputType="textMultiLine" />
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Multiple File Attachments View -->
+            <LinearLayout
+                android:id="@+id/layoutFiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -387,6 +381,15 @@
                     android:src="@android:drawable/ic_menu_gallery"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Insert Image" />
+
+                <ImageButton
+                    android:id="@+id/btnAttachFile"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_add"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Attach File" />
 
                 <View
                     android:layout_width="1dp"

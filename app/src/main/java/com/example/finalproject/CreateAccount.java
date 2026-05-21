@@ -33,6 +33,7 @@ public class CreateAccount extends AppCompatActivity {
             editTextBirthday, editTextSignupPassword, editTextConfirmPassword, editTextOtherGender;
     private TextView tvPasswordStrength;
     private AutoCompleteTextView autoCompleteGender;
+    private com.google.android.material.switchmaterial.SwitchMaterial cbTrustDevice;
     private TextInputLayout layoutOtherGender;
     private UserRepository userRepository;
 
@@ -72,6 +73,7 @@ public class CreateAccount extends AppCompatActivity {
         tvPasswordStrength      = findViewById(R.id.tvPasswordStrength);
         editTextSignupPassword  = findViewById(R.id.editTextSignupPassword);
         editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword);
+        cbTrustDevice           = findViewById(R.id.cbTrustDevice);
         Button btnRegister      = findViewById(R.id.btnRegister);
         TextView tvBackToLogin  = findViewById(R.id.tvBackToLogin);
 
@@ -90,7 +92,7 @@ public class CreateAccount extends AppCompatActivity {
         editTextBirthday.setOnClickListener(v -> showDatePicker());
 
         // Gender Dropdown
-        String[] genders = {"Male", "Female", "Other"};
+        String[] genders = {"Male", "Female", "Non-binary", "Prefer not to say", "Other"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, genders);
         autoCompleteGender.setAdapter(adapter);
 
@@ -150,7 +152,20 @@ public class CreateAccount extends AppCompatActivity {
                 String hashed = SecurityUtils.hashPassword(password);
                 User user = new User(formattedName, email, hashed, phone, birthday, gender);
                 
-                showVerificationDialog(user);
+                // --- NEW: Pre-check availability before sending code ---
+                android.app.ProgressDialog pd = new android.app.ProgressDialog(this);
+                pd.setMessage("Checking availability...");
+                pd.setCancelable(false);
+                pd.show();
+
+                userRepository.checkAvailability(email, phone, availabilityError -> runOnUiThread(() -> {
+                    pd.dismiss();
+                    if (availabilityError == null) {
+                        showVerificationDialog(user, cbTrustDevice.isChecked());
+                    } else {
+                        Toast.makeText(this, availabilityError, Toast.LENGTH_LONG).show();
+                    }
+                }));
             }
         });
 
@@ -172,7 +187,7 @@ public class CreateAccount extends AppCompatActivity {
         return sb.toString().trim();
     }
 
-    private void showVerificationDialog(User user) {
+    private void showVerificationDialog(User user, boolean shouldTrust) {
         String code = String.valueOf(100000 + new java.util.Random().nextInt(900000));
         
         // Show progress dialog or loading state
@@ -208,14 +223,21 @@ public class CreateAccount extends AppCompatActivity {
 
                 builder.setPositiveButton("Complete Registration", (dialog, which) -> {
                     if (input.getText().toString().equals(code)) {
-                        user.isMfaVerified = true; // Trust this device after registration
+                        // Mark THIS DEVICE as trusted locally for 30 days if user checked the box
+                        if (shouldTrust) {
+                            SharedPreferences trustPrefs = getSharedPreferences("DeviceTrust", MODE_PRIVATE);
+                            trustPrefs.edit().putLong("trust_" + user.email, System.currentTimeMillis()).apply();
+                        }
+
+                        user.isMfaVerified = true;
                         user.lastMfaVerifiedAt = System.currentTimeMillis();
-                        userRepository.register(user, registerSuccess -> runOnUiThread(() -> {
-                            if (registerSuccess) {
+
+                        userRepository.register(user, registerError -> runOnUiThread(() -> {
+                            if (registerError == null) {
                                 Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show();
                                 finish();
                             } else {
-                                Toast.makeText(this, "Email already exists", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, registerError, Toast.LENGTH_LONG).show();
                             }
                         }));
                     } else {

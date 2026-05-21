@@ -233,6 +233,17 @@
                             android:textColor="?android:attr/textColorPrimary" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/cbTrustDevice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Trust this device for 30 days"
+                        android:textColor="?android:attr/textColorPrimary"
+                        app:useMaterialThemeColors="true"
+                        android:checked="true" />
+
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 

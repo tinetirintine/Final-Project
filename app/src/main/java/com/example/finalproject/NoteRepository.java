@@ -9,18 +9,33 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class NoteRepository {
+    private final Context context;
     private final NoteDao noteDao;
+    private final UserDao userDao;
     private final ExecutorService executorService;
+    private final FirestoreHelper firestoreHelper;
 
     public NoteRepository(Context context) {
+        this.context = context.getApplicationContext();
         AppDatabase db = AppDatabase.getInstance(context);
         noteDao = db.noteDao();
+        userDao = db.userDao();
         executorService = Executors.newSingleThreadExecutor();
+        firestoreHelper = new FirestoreHelper();
     }
 
     public void addNote(Note note, Runnable onComplete) {
         executorService.execute(() -> {
-            noteDao.insertNote(note);
+            long newId = noteDao.insertNote(note);
+            note.setId((int) newId); // Set the generated ID for Firestore
+            
+            // Schedule notification
+            ReminderHelper.scheduleReminder(context, note);
+            
+            User user = userDao.getUserById(note.getUserId());
+            if (user != null) {
+                firestoreHelper.uploadNote(note, user.email);
+            }
             if (onComplete != null) onComplete.run();
         });
     }
@@ -28,6 +43,14 @@ public class NoteRepository {
     public void updateNote(Note note, Runnable onComplete) {
         executorService.execute(() -> {
             noteDao.updateNote(note);
+            
+            // Schedule/Reschedule notification
+            ReminderHelper.scheduleReminder(context, note);
+            
+            User user = userDao.getUserById(note.getUserId());
+            if (user != null) {
+                firestoreHelper.uploadNote(note, user.email);
+            }
             if (onComplete != null) onComplete.run();
         });
     }
@@ -35,6 +58,14 @@ public class NoteRepository {
     public void deleteNote(Note note, Runnable onComplete) {
         executorService.execute(() -> {
             noteDao.deleteNote(note);
+            
+            // Cancel notification
+            ReminderHelper.cancelReminder(context, note.getId());
+
+            User user = userDao.getUserById(note.getUserId());
+            if (user != null) {
+                firestoreHelper.deleteNote(note, user.email);
+            }
             if (onComplete != null) onComplete.run();
         });
     }
@@ -113,8 +144,56 @@ public class NoteRepository {
 
     public void emptyTrash(int userId, Runnable onComplete) {
         executorService.execute(() -> {
+            User user = userDao.getUserById(userId);
+            List<Note> deletedNotes = noteDao.getDeletedNotesForUser(userId);
+            
+            for (Note note : deletedNotes) {
+                // Cancel notification
+                ReminderHelper.cancelReminder(context, note.getId());
+                
+                // Delete from Cloud
+                if (user != null) {
+                    firestoreHelper.deleteNote(note, user.email);
+                }
+            }
+            
+            // Delete from Local
             noteDao.emptyTrash(userId);
+
             if (onComplete != null) onComplete.run();
+        });
+    }
+
+    public void getNoteById(int noteId, Callback<Note> callback) {
+        executorService.execute(() -> {
+            Note note = noteDao.getNoteById(noteId);
+            callback.onResult(note);
+        });
+    }
+
+    public void syncNotesFromCloud(int userId, Runnable onComplete) {
+        executorService.execute(() -> {
+            User user = userDao.getUserById(userId);
+            if (user != null) {
+                firestoreHelper.getAllNotes(user.email, queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                        executorService.execute(() -> {
+                            for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                                Note cloudNote = doc.toObject(Note.class);
+                                if (cloudNote != null) {
+                                    noteDao.insertNote(cloudNote); // insertNote with @Insert(onConflict = OnConflictStrategy.REPLACE)
+                                    ReminderHelper.scheduleReminder(context, cloudNote);
+                                }
+                            }
+                            if (onComplete != null) onComplete.run();
+                        });
+                    } else {
+                        if (onComplete != null) onComplete.run();
+                    }
+                });
+            } else {
+                if (onComplete != null) onComplete.run();
+            }
         });
     }
 

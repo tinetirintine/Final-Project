@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.finalproject"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.finalproject"
@@ -39,9 +39,11 @@ dependencies {
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
     implementation(libs.googleid)
     implementation(libs.material)
     implementation(libs.biometric)
+    implementation(libs.gson)
 
     // Room dependencies
     implementation(libs.room.runtime)

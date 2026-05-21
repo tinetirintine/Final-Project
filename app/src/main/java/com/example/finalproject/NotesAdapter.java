@@ -132,6 +132,10 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
             holder.ivFavorite.setVisibility(note.isFavorite() ? View.VISIBLE : View.GONE);
             holder.ivFavorite.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorFavorite));
             holder.ivArchived.setVisibility(note.isArchived() ? View.VISIBLE : View.GONE);
+            
+            boolean hasAttachments = (note.getImagePaths() != null && !note.getImagePaths().isEmpty()) || 
+                                    (note.getFilePaths() != null && !note.getFilePaths().isEmpty());
+            holder.ivHasAttachments.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
         }
 
         holder.btnRestore.setOnClickListener(v -> interactionListener.onRestoreClick(note));
@@ -174,7 +178,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
         TextView tvTitle, tvContent, tvCategory, tvDateTime;
         ImageButton btnDelete, btnRestore;
         CheckBox cbDone;
-        ImageView ivPinned, ivFavorite, ivArchived;
+        ImageView ivPinned, ivFavorite, ivArchived, ivHasAttachments;
         View viewCategoryStrip;
 
         public NoteViewHolder(@NonNull View itemView) {
@@ -189,6 +193,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
             ivPinned = itemView.findViewById(R.id.ivPinned);
             ivFavorite = itemView.findViewById(R.id.ivFavorite);
             ivArchived = itemView.findViewById(R.id.ivArchived);
+            ivHasAttachments = itemView.findViewById(R.id.ivHasAttachments);
             viewCategoryStrip = itemView.findViewById(R.id.viewCategoryStrip);
         }
     }

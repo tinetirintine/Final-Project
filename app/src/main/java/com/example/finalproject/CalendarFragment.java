@@ -125,7 +125,9 @@ public class CalendarFragment extends Fragment {
                             intent.putExtra("note_pinned", note.isPinned());
                             intent.putExtra("note_archived", note.isArchived());
                             intent.putExtra("note_done", note.isDone());
-                            intent.putExtra("note_image", note.getImagePath());
+                            intent.putExtra("note_image_paths", note.getImagePaths());
+                            intent.putExtra("note_file_paths", note.getFilePaths());
+                            intent.putExtra("note_file_names", note.getFileNames());
                             startActivity(intent);
                         }
                     });

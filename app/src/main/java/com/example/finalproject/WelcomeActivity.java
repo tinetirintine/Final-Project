@@ -72,6 +72,11 @@ public class WelcomeActivity extends AppCompatActivity {
                 intent.putExtra("phone", userPhone);
                 intent.putExtra("birthday", userBirthday);
                 intent.putExtra("gender", userGender);
+                
+                if (getIntent().hasExtra("target_note_id")) {
+                    intent.putExtra("target_note_id", getIntent().getIntExtra("target_note_id", -1));
+                }
+
                 startActivity(intent);
                 finish();
             });

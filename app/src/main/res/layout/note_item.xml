@@ -94,6 +94,16 @@
                         android:visibility="gone"
                         app:tint="@color/colorArchive"
                         android:contentDescription="Archived" />
+
+                    <ImageView
+                        android:id="@+id/ivHasAttachments"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:visibility="gone"
+                        app:tint="@color/brand_purple"
+                        android:contentDescription="Attachments" />
                 </LinearLayout>
 
                 <TextView

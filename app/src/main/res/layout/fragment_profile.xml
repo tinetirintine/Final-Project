@@ -312,6 +312,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- MFA Switch -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchMFA"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="Two-Factor Authentication (Email)"
+            android:textColor="?android:attr/textColorPrimary"
+            app:layout_constraintTop_toBottomOf="@id/switchBiometric"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <!-- Logout Button -->
         <Button
             android:id="@+id/btnLogout"
@@ -323,10 +337,57 @@
             android:text="Logout"
             android:textColor="@android:color/white"
             app:backgroundTint="@android:color/holo_red_dark"
-            app:layout_constraintTop_toBottomOf="@id/switchBiometric"
+            app:layout_constraintTop_toBottomOf="@id/switchMFA"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Delete Account Button (Regular User Only) -->
+        <Button
+            android:id="@+id/btnDeleteAccount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="DELETE ACCOUNT"
+            android:textColor="@android:color/white"
+            app:backgroundTint="#FF1744"
+            app:layout_constraintTop_toBottomOf="@id/btnLogout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Reset Databases Button (Admin Only) -->
+        <Button
+            android:id="@+id/btnResetDatabases"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="RESET ALL DATABASES (ADMIN)"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            app:backgroundTint="#000000"
+            app:layout_constraintTop_toBottomOf="@id/btnLogout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Admin Dashboard Button -->
+        <Button
+            android:id="@+id/btnAdminDashboard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="MANAGE USERS (ADMIN)"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            app:backgroundTint="@color/brand_purple"
+            app:layout_constraintTop_toBottomOf="@id/btnResetDatabases"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="32dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

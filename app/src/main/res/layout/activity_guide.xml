@@ -15,13 +15,18 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="32dp"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/btnNext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:tabBackground="@drawable/tab_selector"
         app:tabIndicatorHeight="0dp"
+        app:tabMaxWidth="24dp"
+        app:tabMinWidth="24dp"
+        app:tabPaddingEnd="4dp"
+        app:tabPaddingStart="4dp"
         app:tabRippleColor="@null" />
 
     <Button

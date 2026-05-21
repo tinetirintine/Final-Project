@@ -28,6 +28,7 @@
 
             <!-- App Logo / Branding -->
             <LinearLayout
+                android:id="@+id/layoutLogo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -35,7 +36,9 @@
                 android:layout_marginBottom="32dp"
                 android:background="@drawable/category_bg"
                 android:backgroundTint="@color/brand_purple"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <TextView
                     android:layout_width="wrap_content"

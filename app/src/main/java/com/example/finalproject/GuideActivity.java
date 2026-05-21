@@ -66,9 +66,9 @@ public class GuideActivity extends AppCompatActivity {
 
     private void setupGuideItems() {
         guideItems = new ArrayList<>();
-        guideItems.add(new GuideItem("Welcome to Noteable", "Your ultimate companion for capturing thoughts and organizing your life.", R.drawable.ic_launcher_foreground));
+        guideItems.add(new GuideItem("Welcome to Noteable", "Your ultimate companion for capturing thoughts and organizing your life.", R.drawable.ic_notes_filled));
         guideItems.add(new GuideItem("Easy Note Taking", "Create, edit, and organize notes with ease. Pin important ones to the top!", R.drawable.ic_pin_filled));
-        guideItems.add(new GuideItem("Calendar View", "Manage your schedule and never miss a deadline with the integrated calendar.", R.drawable.ic_launcher_foreground));
+        guideItems.add(new GuideItem("Calendar View", "Manage your schedule and never miss a deadline with the integrated calendar.", R.drawable.ic_calendar_filled));
         guideItems.add(new GuideItem("Secure & Dark Mode", "Keep your notes safe with biometric login and enjoy a beautiful dark theme.", R.drawable.ic_moon));
     }
 

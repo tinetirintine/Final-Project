@@ -25,6 +25,9 @@ import android.net.NetworkRequest;
 import android.widget.Toast;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -179,8 +182,55 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupNetworkMonitoring();
+        requestNotificationPermission();
+        handleIncomingIntent(getIntent());
     }
 
+    private void handleIncomingIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("target_note_id")) {
+            int targetId = intent.getIntExtra("target_note_id", -1);
+            if (targetId != -1) {
+                NoteRepository repo = new NoteRepository(this);
+                repo.getNoteById(targetId, note -> {
+                    if (note != null) {
+                        runOnUiThread(() -> {
+                            Intent addNoteIntent = new Intent(MainActivity.this, AddNoteActivity.class);
+                            addNoteIntent.putExtra("user_id", userId);
+                            addNoteIntent.putExtra("note_id", note.getId());
+                            addNoteIntent.putExtra("note_title", note.getTitle());
+                            addNoteIntent.putExtra("note_content", note.getContent());
+                            addNoteIntent.putExtra("note_category", note.getCategory());
+                            addNoteIntent.putExtra("note_date", note.getDateMillis());
+                            addNoteIntent.putExtra("note_time", note.getTime());
+                            addNoteIntent.putExtra("note_favorite", note.isFavorite());
+                            addNoteIntent.putExtra("note_pinned", note.isPinned());
+                            addNoteIntent.putExtra("note_archived", note.isArchived());
+                            addNoteIntent.putExtra("note_archived_at", note.getArchivedAt());
+                            addNoteIntent.putExtra("note_done", note.isDone());
+                            addNoteIntent.putExtra("note_image_paths", note.getImagePaths());
+                            addNoteIntent.putExtra("note_file_paths", note.getFilePaths());
+                            addNoteIntent.putExtra("note_file_names", note.getFileNames());
+                            startActivity(addNoteIntent);
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIncomingIntent(intent);
+    }
+
+    private void requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                androidx.core.app.ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+    }
 
     private void setupNetworkMonitoring() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -211,10 +261,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void simulateSync() {
-        // Here you would normally call an API to sync Room data to a server
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Toast.makeText(MainActivity.this, "Sync Complete!", Toast.LENGTH_SHORT).show();
-        }, 2000);
+        if (userId != -1) {
+            NoteRepository repo = new NoteRepository(this);
+            repo.syncNotesFromCloud(userId, () -> {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Sync Complete!", Toast.LENGTH_SHORT).show();
+                    // Refresh current fragment if it's NotesFragment
+                    Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+                    if (current instanceof NotesFragment) {
+                        ((NotesFragment) current).refreshNotes();
+                    }
+                });
+            });
+        }
     }
 
     @Override

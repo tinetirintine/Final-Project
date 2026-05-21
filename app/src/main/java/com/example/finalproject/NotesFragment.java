@@ -238,7 +238,9 @@ public class NotesFragment extends Fragment {
                                 intent.putExtra("note_archived", note.isArchived());
                                 intent.putExtra("note_archived_at", note.getArchivedAt());
                                 intent.putExtra("note_done", note.isDone());
-                                intent.putExtra("note_image", note.getImagePath());
+                                intent.putExtra("note_image_paths", note.getImagePaths());
+                                intent.putExtra("note_file_paths", note.getFilePaths());
+                                intent.putExtra("note_file_names", note.getFileNames());
                                 intent.putExtra("is_read_only", "Trash".equals(category) || "Checklist".equals(category));
                                 startActivity(intent);
                             }

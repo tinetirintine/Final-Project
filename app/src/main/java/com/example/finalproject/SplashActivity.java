@@ -38,6 +38,12 @@ public class SplashActivity extends AppCompatActivity {
                 intent.putExtra("phone", loginPrefs.getString("phone", ""));
                 intent.putExtra("birthday", loginPrefs.getString("birthday", ""));
                 intent.putExtra("gender", loginPrefs.getString("gender", ""));
+                
+                // Pass the note ID if it exists
+                if (getIntent().hasExtra("target_note_id")) {
+                    intent.putExtra("target_note_id", getIntent().getIntExtra("target_note_id", -1));
+                }
+
                 startActivity(intent);
             } else {
                 startActivity(new Intent(SplashActivity.this, LoginAndSignup.class));
