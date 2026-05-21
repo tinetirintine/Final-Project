@@ -128,8 +128,24 @@ public class UserRepository {
 
     public void getUserByEmail(String email, Callback<User> callback) {
         executorService.execute(() -> {
-            User user = userDao.getUserByEmail(email);
-            callback.onResult(user);
+            User localUser = userDao.getUserByEmail(email);
+            if (localUser != null) {
+                callback.onResult(localUser);
+                return;
+            }
+
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(email)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            callback.onResult(doc.toObject(User.class));
+                        } else {
+                            callback.onResult(null);
+                        }
+                    })
+                    .addOnFailureListener(e -> callback.onResult(null));
         });
     }
 
@@ -236,22 +252,7 @@ public class UserRepository {
     }
 
     public void checkUserExists(String email, Callback<Boolean> callback) {
-        executorService.execute(() -> {
-            User localUser = userDao.getUserByEmail(email);
-            if (localUser != null) {
-                callback.onResult(true);
-                return;
-            }
-
-            com.google.firebase.firestore.FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .whereEqualTo("email", email)
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        callback.onResult(!queryDocumentSnapshots.isEmpty());
-                    })
-                    .addOnFailureListener(e -> callback.onResult(false));
-        });
+        getUserByEmail(email, user -> callback.onResult(user != null && !user.isUserDeleted));
     }
 
     public void login(String email, String password, Callback<User> callback) {
@@ -271,11 +272,7 @@ public class UserRepository {
             // 2. Try Local Login
             User localUser = userDao.loginUser(email, password);
             if (localUser != null) {
-                if (localUser.isAdminDeleted) {
-                    callback.onResult(null); // Block login for admin-deleted users
-                } else {
-                    callback.onResult(localUser); // Return user (even if isUserDeleted is true)
-                }
+                callback.onResult(localUser); // Return user, UI will handle status (deleted/disabled)
                 return;
             }
 
@@ -289,16 +286,12 @@ public class UserRepository {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             User cloudUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                             if (cloudUser != null) {
-                                if (cloudUser.isAdminDeleted) {
-                                    callback.onResult(null); // Block login
-                                } else {
-                                    // Save to local DB for future offline access
-                                    executorService.execute(() -> {
-                                        userDao.registerUser(cloudUser);
-                                        User savedUser = userDao.getUserByEmail(cloudUser.email);
-                                        callback.onResult(savedUser);
-                                    });
-                                }
+                                // Save to local DB for future offline access
+                                executorService.execute(() -> {
+                                    userDao.registerUser(cloudUser);
+                                    User savedUser = userDao.getUserByEmail(cloudUser.email);
+                                    callback.onResult(savedUser);
+                                });
                             } else {
                                 callback.onResult(null);
                             }

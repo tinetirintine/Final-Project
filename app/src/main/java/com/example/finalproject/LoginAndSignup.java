@@ -73,6 +73,11 @@ public class LoginAndSignup extends AppCompatActivity {
             String hashed = SecurityUtils.hashPassword(password);
             userRepository.login(email, hashed, user -> runOnUiThread(() -> {
                 if (user != null) {
+                    if (user.isAdminDeleted) {
+                        Toast.makeText(this, "Account Disabled.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
                     if ("adminpogi".equals(user.email)) {
                         proceedToWelcome(user);
                         return;
@@ -85,9 +90,11 @@ public class LoginAndSignup extends AppCompatActivity {
 
                     handleNormalLogin(user);
                 } else {
-                    userRepository.checkUserExists(email, exists -> runOnUiThread(() -> {
-                        if (!exists) {
+                    userRepository.getUserByEmail(email, foundUser -> runOnUiThread(() -> {
+                        if (foundUser == null || foundUser.isUserDeleted) {
                             Toast.makeText(this, "No account exists for this email", Toast.LENGTH_SHORT).show();
+                        } else if (foundUser.isAdminDeleted) {
+                            Toast.makeText(this, "Account Disabled.", Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show();
                         }
