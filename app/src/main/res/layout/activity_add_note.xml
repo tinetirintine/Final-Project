@@ -3,10 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/mainAddNote"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="?android:attr/windowBackground"
     tools:context=".AddNoteActivity">
 
     <!-- Top Bar -->
@@ -14,7 +14,7 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/dark_gray"
+        android:background="?attr/colorSurface"
         app:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -29,7 +29,7 @@
                 android:id="@+id/btnBack"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_media_previous"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Back"/>
@@ -41,12 +41,13 @@
                 android:layout_weight="1"
                 android:hint="Title"
                 android:textColorHint="@color/text_hint"
-                android:textColor="@color/black"
+                android:textColor="?android:attr/textColorPrimary"
                 android:background="@drawable/category_bg"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="?attr/colorSurface"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginVertical="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:paddingHorizontal="16dp"
                 android:gravity="center_vertical"
                 android:inputType="textPersonName" />
@@ -55,7 +56,7 @@
                 android:id="@+id/btnUndo"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_revert"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Undo"/>
@@ -65,7 +66,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:rotationY="180"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_revert"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Redo"/>
@@ -74,15 +75,50 @@
                 android:id="@+id/btnDone"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/checkbox_on_background"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_save"
                 app:tint="@color/brand_purple"
                 android:contentDescription="Done"/>
+        </LinearLayout>
+
+        <!-- Search Bar (Hidden by default) -->
+        <LinearLayout
+            android:id="@+id/layoutSearchBar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="@color/brand_purple"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/etSearchInNote"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Find in note..."
+                android:textColor="@color/white"
+                android:textColorHint="#CCCCCC"
+                android:background="@android:color/transparent"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:imeOptions="actionDone"
+                android:inputType="text" />
+
+            <ImageButton
+                android:id="@+id/btnCloseSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="@color/white" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
@@ -101,7 +137,7 @@
                 android:layout_margin="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/dark_gray"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:strokeColor="@color/brand_purple"
                 app:strokeWidth="1dp">
 
@@ -121,7 +157,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Category:"
-                            android:textColor="@color/white"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:textStyle="bold"
                             android:layout_marginEnd="8dp"/>
 
@@ -145,7 +181,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Date"
-                            android:textColor="@color/white"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:layout_marginEnd="4dp"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
                             app:icon="@android:drawable/ic_menu_my_calendar"
@@ -158,7 +194,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Time"
-                            android:textColor="@color/white"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:layout_marginStart="4dp"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
                             app:icon="@android:drawable/ic_menu_recent_history"
@@ -168,36 +204,24 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Image View -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardImage"
+            <!-- Multiple Images View -->
+            <LinearLayout
+                android:id="@+id/layoutImages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/ivNoteImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:maxHeight="300dp"
-                    android:scaleType="fitCenter" />
-            </com.google.android.material.card.MaterialCardView>
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp" />
 
             <!-- Note Area -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
                 android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardBackgroundColor="?attr/colorSurface">
 
                 <EditText
                     android:id="@+id/editTextNote"
@@ -208,12 +232,20 @@
                     android:gravity="top|start"
                     android:hint="Write your note here..."
                     android:textColorHint="@color/text_hint"
-                    android:textColor="@color/black"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:padding="16dp"
                     android:textSize="18sp"
                     android:lineSpacingExtra="4dp"
                     android:inputType="textMultiLine" />
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Multiple File Attachments View -->
+            <LinearLayout
+                android:id="@+id/layoutFiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -225,7 +257,7 @@
         android:layout_margin="12dp"
         app:cardCornerRadius="24dp"
         app:cardElevation="6dp"
-        app:cardBackgroundColor="@color/dark_gray"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <HorizontalScrollView
@@ -241,11 +273,20 @@
                 android:gravity="center_vertical">
 
                 <ImageButton
+                    android:id="@+id/btnCaps"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_case"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Toggle Case" />
+
+                <ImageButton
                     android:id="@+id/btnBold"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_edit"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_bold"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Bold" />
 
@@ -253,18 +294,82 @@
                     android:id="@+id/btnItalic"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_edit"
-                    android:rotation="15"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_italic"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Italic" />
+
+                <ImageButton
+                    android:id="@+id/btnUnderline"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_underline"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Underline" />
+
+                <ImageButton
+                    android:id="@+id/btnBullet"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_list_bulleted"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Bullet List" />
+
+                <ImageButton
+                    android:id="@+id/btnNumber"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_list_numbered"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Numbered List" />
+
+                <Button
+                    android:id="@+id/btnAlphabet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="a.b.c"
+                    android:textAllCaps="false"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="12dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:textColor="@color/brand_purple" />
+
+                <ImageButton
+                    android:id="@+id/btnAlignLeft"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_align_left"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Align Left" />
+
+                <ImageButton
+                    android:id="@+id/btnAlignCenter"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_align_center"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Align Center" />
+
+                <ImageButton
+                    android:id="@+id/btnAlignRight"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_format_align_right"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Align Right" />
 
                 <ImageButton
                     android:id="@+id/btnChecklist"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/checkbox_on_background"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_checkbox_checked"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Checklist" />
 
@@ -272,10 +377,19 @@
                     android:id="@+id/btnInsertImage"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@android:drawable/ic_menu_gallery"
                     app:tint="@color/brand_purple"
                     android:contentDescription="Insert Image" />
+
+                <ImageButton
+                    android:id="@+id/btnAttachFile"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_add"
+                    app:tint="@color/brand_purple"
+                    android:contentDescription="Attach File" />
 
                 <View
                     android:layout_width="1dp"
@@ -287,8 +401,8 @@
                     android:id="@+id/btnFavorite"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_heart_outline"
                     app:tint="@color/colorFavorite"
                     android:contentDescription="Favorite" />
 
@@ -296,8 +410,8 @@
                     android:id="@+id/btnPin"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/btn_star_big_on"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_pin_outline"
                     app:tint="@color/colorPin"
                     android:contentDescription="Pin" />
 
@@ -305,8 +419,8 @@
                     android:id="@+id/btnArchive"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_save"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_archive"
                     app:tint="@color/colorArchive"
                     android:contentDescription="Archive" />
 
@@ -314,10 +428,10 @@
                     android:id="@+id/btnSearch"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Search"
                     android:src="@android:drawable/ic_menu_search"
-                    app:tint="@color/brand_purple"
-                    android:contentDescription="Search" />
+                    app:tint="@color/brand_purple" />
 
             </LinearLayout>
         </HorizontalScrollView>

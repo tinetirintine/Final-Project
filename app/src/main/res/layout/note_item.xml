@@ -3,11 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="6dp"
-    app:cardBackgroundColor="@color/dark_gray"
+    app:cardBackgroundColor="?attr/colorSurface"
     app:strokeWidth="1.5dp"
     app:strokeColor="@color/brand_purple">
 
@@ -59,7 +61,7 @@
                         android:text="Title"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/white"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:maxLines="1"
                         android:ellipsize="end" />
 
@@ -68,7 +70,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_marginStart="6dp"
-                        android:src="@android:drawable/btn_star_big_on"
+                        android:src="@drawable/ic_pin_filled"
                         android:visibility="gone"
                         app:tint="@color/colorPin"
                         android:contentDescription="Pinned" />
@@ -78,7 +80,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_marginStart="6dp"
-                        android:src="@android:drawable/btn_star_big_on"
+                        android:src="@drawable/ic_heart_filled"
                         android:visibility="gone"
                         app:tint="@color/colorFavorite"
                         android:contentDescription="Favorite" />
@@ -88,10 +90,20 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_marginStart="6dp"
-                        android:src="@android:drawable/ic_menu_save"
+                        android:src="@drawable/ic_archive"
                         android:visibility="gone"
                         app:tint="@color/colorArchive"
                         android:contentDescription="Archived" />
+
+                    <ImageView
+                        android:id="@+id/ivHasAttachments"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@android:drawable/ic_menu_save"
+                        android:visibility="gone"
+                        app:tint="@color/brand_purple"
+                        android:contentDescription="Attachments" />
                 </LinearLayout>
 
                 <TextView
@@ -101,7 +113,7 @@
                     android:layout_marginTop="6dp"
                     android:text="Note Content"
                     android:textSize="15sp"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:maxLines="2"
                     android:ellipsize="end"
                     android:lineSpacingExtra="2dp" />
@@ -133,19 +145,30 @@
                         android:layout_marginStart="12dp"
                         android:text="Date - Time"
                         android:textSize="12sp"
-                        android:textColor="@color/text_secondary" />
+                        android:textColor="?android:attr/textColorSecondary" />
                 </LinearLayout>
             </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnRestore"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="8dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_restore"
+                android:visibility="gone"
+                app:tint="@color/brand_purple"
+                android:contentDescription="@string/restore_note" />
 
             <ImageButton
                 android:id="@+id/btnDelete"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete_filled"
                 app:tint="@color/colorTrash"
-                android:contentDescription="Delete Note" />
+                android:contentDescription="@string/delete_note" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

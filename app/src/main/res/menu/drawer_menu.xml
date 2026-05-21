@@ -2,26 +2,30 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_profile"
-        android:icon="@android:drawable/ic_menu_myplaces"
+        android:icon="@drawable/ic_person_filled"
         android:title="Profile" />
     <item
         android:id="@+id/nav_notes"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/ic_notes_filled"
         android:title="Notes" />
     <item
         android:id="@+id/nav_favorites"
-        android:icon="@android:drawable/btn_star_big_on"
+        android:icon="@drawable/ic_heart_filled"
         android:title="Favorites" />
     <item
+        android:id="@+id/nav_checklist"
+        android:icon="@drawable/ic_checkbox_checked"
+        android:title="Checklist" />
+    <item
         android:id="@+id/nav_archive"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@drawable/ic_archive"
         android:title="Archive" />
     <item
         android:id="@+id/nav_calendar"
-        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:icon="@drawable/ic_calendar_filled"
         android:title="Calendar" />
     <item
         android:id="@+id/nav_trash"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@drawable/ic_delete_filled"
         android:title="Trash" />
 </menu>

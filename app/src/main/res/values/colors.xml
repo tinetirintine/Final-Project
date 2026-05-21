@@ -20,11 +20,12 @@
     <!-- Text Colors -->
     <color name="text_on_dark">#FFFFFF</color>
     <color name="text_on_light">#000000</color>
-    <color name="text_secondary">#B0B0B0</color>
+    <color name="text_primary_light">#212121</color>
+    <color name="text_secondary">#666666</color>
     <color name="text_hint">#666666</color>
 
     <!-- Action Colors -->
-    <color name="colorFavorite">#FFD700</color>
+    <color name="colorFavorite">#FF0000</color>
     <color name="colorArchive">#4CAF50</color>
     <color name="colorTrash">#F44336</color>
     <color name="colorPin">#2196F3</color>
@@ -35,10 +36,13 @@
     <color name="purple_700">#7B1FA2</color>
     <color name="nav_bg">#1A1A1A</color>
     <color name="light_purple_bg">#121212</color>
-    <color name="welcome_subtitle">#B0B0B0</color>
+    <color name="welcome_subtitle">#666666</color>
     <color name="colorPersonal">#81C784</color>
     <color name="colorSchool">#64B5F6</color>
     <color name="colorWork">#FFB74D</color>
-    <color name="colorDone">#616161</color>
+    <color name="colorDone">#757575</color>
+    <color name="category_unselected_light">#F0F0F0</color>
+    <color name="category_unselected_dark">#222222</color>
     <color name="colorPastDue">#EF5350</color>
+    <color name="branding_note_color">#000000</color>
 </resources>

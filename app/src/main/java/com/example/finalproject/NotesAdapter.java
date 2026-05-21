@@ -1,5 +1,6 @@
 package com.example.finalproject;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.text.Html;
@@ -29,6 +30,13 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
         void onDeleteClick(Note note);
         void onNoteClick(Note note);
         void onDoneChanged(Note note, boolean isDone);
+        void onRestoreClick(Note note);
+    }
+
+    private boolean isTrashMode = false;
+
+    public void setTrashMode(boolean isTrashMode) {
+        this.isTrashMode = isTrashMode;
     }
 
     public NotesAdapter(List<Note> notes, OnNoteInteractionListener interactionListener) {
@@ -78,17 +86,30 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
         if (shouldCrossOut) {
             holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.tvContent.setPaintFlags(holder.tvContent.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            holder.tvTitle.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorDone));
+            int doneColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.colorDone);
+            holder.tvTitle.setTextColor(doneColor);
+            holder.tvContent.setTextColor(doneColor);
         } else {
             holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
             holder.tvContent.setPaintFlags(holder.tvContent.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-            holder.tvTitle.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+            
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+            holder.tvTitle.setTextColor(typedValue.data);
+            
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.textColorSecondary, typedValue, true);
+            holder.tvContent.setTextColor(typedValue.data);
         }
+
+        // Fix: Make category text black for better contrast on pastel backgrounds in light mode
+        holder.tvCategory.setTextColor(Color.BLACK);
 
         if (isPast && !note.isDone()) {
             holder.tvDateTime.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorPastDue));
         } else {
-            holder.tvDateTime.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.welcome_subtitle));
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.textColorSecondary, typedValue, true);
+            holder.tvDateTime.setTextColor(typedValue.data);
         }
 
         holder.cbDone.setOnCheckedChangeListener(null);
@@ -97,11 +118,27 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
             interactionListener.onDoneChanged(note, isChecked);
         });
 
-        holder.ivPinned.setVisibility(note.isPinned() ? View.VISIBLE : View.GONE);
-        holder.ivFavorite.setVisibility(note.isFavorite() ? View.VISIBLE : View.GONE);
-        holder.ivFavorite.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorFavorite));
-        holder.ivArchived.setVisibility(note.isArchived() ? View.VISIBLE : View.GONE);
+        if (isTrashMode) {
+            holder.btnRestore.setVisibility(View.VISIBLE);
+            holder.cbDone.setVisibility(View.GONE);
+            holder.ivPinned.setVisibility(View.GONE);
+            holder.ivFavorite.setVisibility(View.GONE);
+            holder.ivArchived.setVisibility(View.GONE);
+        } else {
+            holder.btnRestore.setVisibility(View.GONE);
+            holder.cbDone.setVisibility(View.VISIBLE);
+            holder.cbDone.setEnabled(true);
+            holder.ivPinned.setVisibility(note.isPinned() ? View.VISIBLE : View.GONE);
+            holder.ivFavorite.setVisibility(note.isFavorite() ? View.VISIBLE : View.GONE);
+            holder.ivFavorite.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorFavorite));
+            holder.ivArchived.setVisibility(note.isArchived() ? View.VISIBLE : View.GONE);
+            
+            boolean hasAttachments = (note.getImagePaths() != null && !note.getImagePaths().isEmpty()) || 
+                                    (note.getFilePaths() != null && !note.getFilePaths().isEmpty());
+            holder.ivHasAttachments.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
+        }
 
+        holder.btnRestore.setOnClickListener(v -> interactionListener.onRestoreClick(note));
         holder.btnDelete.setOnClickListener(v -> interactionListener.onDeleteClick(note));
         holder.itemView.setOnClickListener(v -> interactionListener.onNoteClick(note));
     }
@@ -139,9 +176,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
 
     static class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvContent, tvCategory, tvDateTime;
-        ImageButton btnDelete;
+        ImageButton btnDelete, btnRestore;
         CheckBox cbDone;
-        ImageView ivPinned, ivFavorite, ivArchived;
+        ImageView ivPinned, ivFavorite, ivArchived, ivHasAttachments;
         View viewCategoryStrip;
 
         public NoteViewHolder(@NonNull View itemView) {
@@ -151,10 +188,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
             tvCategory = itemView.findViewById(R.id.tvNoteCategory);
             tvDateTime = itemView.findViewById(R.id.tvNoteDateTime);
             btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnRestore = itemView.findViewById(R.id.btnRestore);
             cbDone = itemView.findViewById(R.id.cbDone);
             ivPinned = itemView.findViewById(R.id.ivPinned);
             ivFavorite = itemView.findViewById(R.id.ivFavorite);
             ivArchived = itemView.findViewById(R.id.ivArchived);
+            ivHasAttachments = itemView.findViewById(R.id.ivHasAttachments);
             viewCategoryStrip = itemView.findViewById(R.id.viewCategoryStrip);
         }
     }

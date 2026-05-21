@@ -17,6 +17,17 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import android.view.View;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.widget.Toast;
+import android.os.Handler;
+import android.os.Looper;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -30,10 +41,20 @@ public class MainActivity extends AppCompatActivity {
     private String userGender;
     private DrawerLayout drawerLayout;
     private Button[] categoryButtons;
+    private ConnectivityManager.NetworkCallback networkCallback;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Load theme preference before super.onCreate
+        SharedPreferences prefs = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("isDarkMode", true); // Default to dark as per original app
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -57,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else {
-                    setEnabled(false);
-                    onBackPressed();
+                    finish();
                 }
             }
         });
@@ -101,17 +121,40 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnMenu = findViewById(R.id.btnMenu);
         btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
 
+        // --- THEME TOGGLE BUTTON (In Navigation Header) ---
+        View headerView = navigationView.getHeaderView(0);
+        ImageButton btnThemeToggle = headerView.findViewById(R.id.btnThemeToggleHeader);
+        updateThemeIcon(btnThemeToggle, isDarkMode);
+
+        btnThemeToggle.setOnClickListener(v -> {
+            boolean currentMode = prefs.getBoolean("isDarkMode", true);
+            boolean newMode = !currentMode;
+            
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("isDarkMode", newMode);
+            editor.apply();
+
+            if (newMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+            recreate(); // Recreate to apply theme changes
+        });
+
 
         // --- DRAWER NAVIGATION ---
         navigationView.setNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_profile) {
-                loadFragment(ProfileFragment.newInstance(userEmail, userName, userPhone, userBirthday, userGender));
+                loadFragment(ProfileFragment.newInstance(userId, userEmail, userName, userPhone, userBirthday, userGender));
             } else if (itemId == R.id.nav_notes) {
                 updateButtonSelection(findViewById(R.id.btnAll));
                 loadFragment(NotesFragment.newInstance(userId, "All"));
             } else if (itemId == R.id.nav_favorites) {
                 loadFragment(NotesFragment.newInstance(userId, "Favorites"));
+            } else if (itemId == R.id.nav_checklist) {
+                loadFragment(NotesFragment.newInstance(userId, "Checklist"));
             } else if (itemId == R.id.nav_archive) {
                 loadFragment(NotesFragment.newInstance(userId, "Archive"));
             } else if (itemId == R.id.nav_trash) {
@@ -130,50 +173,175 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             updateButtonSelection(findViewById(R.id.btnAll));
             loadFragment(NotesFragment.newInstance(userId, "All"));
+        } else {
+            // Restore visibility logic for FAB and Categories after recreation
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+            if (currentFragment != null) {
+                loadFragment(currentFragment);
+            }
+        }
+
+        setupNetworkMonitoring();
+        requestNotificationPermission();
+        handleIncomingIntent(getIntent());
+    }
+
+    private void handleIncomingIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("target_note_id")) {
+            int targetId = intent.getIntExtra("target_note_id", -1);
+            if (targetId != -1) {
+                NoteRepository repo = new NoteRepository(this);
+                repo.getNoteById(targetId, note -> {
+                    if (note != null) {
+                        runOnUiThread(() -> {
+                            Intent addNoteIntent = new Intent(MainActivity.this, AddNoteActivity.class);
+                            addNoteIntent.putExtra("user_id", userId);
+                            addNoteIntent.putExtra("note_id", note.getId());
+                            addNoteIntent.putExtra("note_title", note.getTitle());
+                            addNoteIntent.putExtra("note_content", note.getContent());
+                            addNoteIntent.putExtra("note_category", note.getCategory());
+                            addNoteIntent.putExtra("note_date", note.getDateMillis());
+                            addNoteIntent.putExtra("note_time", note.getTime());
+                            addNoteIntent.putExtra("note_favorite", note.isFavorite());
+                            addNoteIntent.putExtra("note_pinned", note.isPinned());
+                            addNoteIntent.putExtra("note_archived", note.isArchived());
+                            addNoteIntent.putExtra("note_archived_at", note.getArchivedAt());
+                            addNoteIntent.putExtra("note_done", note.isDone());
+                            addNoteIntent.putExtra("note_image_paths", note.getImagePaths());
+                            addNoteIntent.putExtra("note_file_paths", note.getFilePaths());
+                            addNoteIntent.putExtra("note_file_names", note.getFileNames());
+                            startActivity(addNoteIntent);
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIncomingIntent(intent);
+    }
+
+    private void requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                androidx.core.app.ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+    }
+
+    private void setupNetworkMonitoring() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@androidx.annotation.NonNull android.net.Network network) {
+                super.onAvailable(network);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(MainActivity.this, "Back Online! Syncing notes...", Toast.LENGTH_SHORT).show();
+                    // Simulate sync
+                    simulateSync();
+                });
+            }
+
+            @Override
+            public void onLost(@androidx.annotation.NonNull android.net.Network network) {
+                super.onLost(network);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(MainActivity.this, "Offline. Changes will be saved locally.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        };
+
+        NetworkRequest request = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build();
+        cm.registerNetworkCallback(request, networkCallback);
+    }
+
+    private void simulateSync() {
+        if (userId != -1) {
+            NoteRepository repo = new NoteRepository(this);
+            repo.syncNotesFromCloud(userId, () -> {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Sync Complete!", Toast.LENGTH_SHORT).show();
+                    // Refresh current fragment if it's NotesFragment
+                    Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+                    if (current instanceof NotesFragment) {
+                        ((NotesFragment) current).refreshNotes();
+                    }
+                });
+            });
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (networkCallback != null) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            cm.unregisterNetworkCallback(networkCallback);
         }
     }
 
 
     private void updateButtonSelection(Button selectedButton) {
+        android.util.TypedValue typedValue = new android.util.TypedValue();
+        getTheme().resolveAttribute(R.attr.colorCategoryUnselected, typedValue, true);
+        int unselectedBg = typedValue.data;
+        getTheme().resolveAttribute(R.attr.colorOnCategoryUnselected, typedValue, true);
+        int unselectedText = typedValue.data;
+
         for (Button btn : categoryButtons) {
             if (btn == selectedButton) {
                 btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brand_purple)));
                 btn.setTextColor(ContextCompat.getColor(this, R.color.white));
             } else {
-                btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#222222")));
-                btn.setTextColor(ContextCompat.getColor(this, R.color.white));
+                btn.setBackgroundTintList(ColorStateList.valueOf(unselectedBg));
+                btn.setTextColor(unselectedText);
             }
         }
     }
 
 
     private void loadFragment(Fragment fragment) {
+        if (isFinishing() || isDestroyed()) return;
+
         // Show/Hide category buttons based on the fragment
         View topCategories = findViewById(R.id.topCategories);
+        FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
+        
+        boolean isMainNotesSection = false;
+
         if (fragment instanceof NotesFragment) {
             Bundle args = fragment.getArguments();
             String cat = args != null ? args.getString("category") : "All";
-            if ("Favorites".equals(cat) || "Archive".equals(cat) || "Trash".equals(cat)) {
+            
+            // "Main Notes" are All, Personal, School, Work
+            if ("Favorites".equals(cat) || "Archive".equals(cat) || "Trash".equals(cat) || "Checklist".equals(cat)) {
                 topCategories.setVisibility(View.GONE);
+                isMainNotesSection = false;
             } else {
                 topCategories.setVisibility(View.VISIBLE);
+                isMainNotesSection = true;
             }
         } else {
             topCategories.setVisibility(View.GONE);
+            isMainNotesSection = false;
         }
 
-        // Show/Hide Add button (hide in Profile)
-        FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
-        if (fragment instanceof ProfileFragment) {
-            btnAdd.setVisibility(View.GONE);
+        // Show Add button ONLY in the main notes section
+        if (isMainNotesSection) {
+            btnAdd.show();
         } else {
-            btnAdd.setVisibility(View.VISIBLE);
+            btnAdd.hide();
         }
 
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, fragment)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     private void showAddNoteMenu(View v) {
@@ -184,7 +352,9 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.getMenu().add("Work Notes");
 
         popupMenu.setOnMenuItemClickListener(item -> {
-            String title = item.getTitle().toString();
+            CharSequence titleChar = item.getTitle();
+            if (titleChar == null) return false;
+            String title = titleChar.toString();
             Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
             intent.putExtra("user_id", userId);
 
@@ -198,5 +368,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
         popupMenu.show();
+    }
+
+    private void updateThemeIcon(ImageButton btn, boolean isDarkMode) {
+        if (isDarkMode) {
+            btn.setImageResource(R.drawable.ic_sun); // Show sun to switch to light
+        } else {
+            btn.setImageResource(R.drawable.ic_moon); // Show moon to switch to dark
+        }
     }
 }

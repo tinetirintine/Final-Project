@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -35,12 +36,23 @@ dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.googleid)
     implementation(libs.material)
+    implementation(libs.biometric)
+    implementation(libs.gson)
 
     // Room dependencies
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     annotationProcessor(libs.room.compiler)
+
+    // JavaMail
+    implementation(libs.javamail)
+    implementation(libs.javaactivation)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)

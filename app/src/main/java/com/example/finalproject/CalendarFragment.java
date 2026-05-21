@@ -99,6 +99,19 @@ public class CalendarFragment extends Fragment {
                         }
 
                         @Override
+                        public void onRestoreClick(Note note) {
+                            new AlertDialog.Builder(requireContext())
+                                .setTitle("Restore Note")
+                                .setMessage("Do you want to restore this note?")
+                                .setPositiveButton("Restore", (dialog, which) -> {
+                                    note.setDeleted(false);
+                                    noteRepository.updateNote(note, () -> refreshNotes());
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .show();
+                        }
+
+                        @Override
                         public void onNoteClick(Note note) {
                             Intent intent = new Intent(getActivity(), AddNoteActivity.class);
                             intent.putExtra("user_id", userId);
@@ -112,7 +125,9 @@ public class CalendarFragment extends Fragment {
                             intent.putExtra("note_pinned", note.isPinned());
                             intent.putExtra("note_archived", note.isArchived());
                             intent.putExtra("note_done", note.isDone());
-                            intent.putExtra("note_image", note.getImagePath());
+                            intent.putExtra("note_image_paths", note.getImagePaths());
+                            intent.putExtra("note_file_paths", note.getFilePaths());
+                            intent.putExtra("note_file_names", note.getFileNames());
                             startActivity(intent);
                         }
                     });

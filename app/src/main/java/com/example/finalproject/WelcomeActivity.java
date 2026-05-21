@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.SharedPreferences;
 
 
 public class WelcomeActivity extends AppCompatActivity {
@@ -13,6 +15,14 @@ public class WelcomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("isDarkMode", true);
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
@@ -20,6 +30,7 @@ public class WelcomeActivity extends AppCompatActivity {
         Button btnContinue = findViewById(R.id.btnContinue);
         TextView tvWelcomeTitle = findViewById(R.id.tvWelcomeTitle);
         TextView tvWelcomeSubtitle = findViewById(R.id.tvWelcomeSubtitle);
+        TextView tvUserDetails = findViewById(R.id.tvUserDetails);
 
 
         int userId = getIntent().getIntExtra("user_id", -1);
@@ -33,21 +44,39 @@ public class WelcomeActivity extends AppCompatActivity {
             tvWelcomeTitle.setText("Welcome, " + userName + "!");
         }
 
+        if (tvWelcomeSubtitle != null) {
+            tvWelcomeSubtitle.setText("Login Successful");
+        }
 
-        if (userEmail != null && tvWelcomeSubtitle != null) {
-            tvWelcomeSubtitle.setText("Login Successful: " + userEmail);
+        if (userEmail != null && tvUserDetails != null) {
+            tvUserDetails.setText(userEmail);
         }
 
 
         if (btnContinue != null) {
             btnContinue.setOnClickListener(v -> {
-                Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                SharedPreferences guidePrefs = getSharedPreferences("GuidePrefs", MODE_PRIVATE);
+                String guideKey = "hasSeenGuide_" + (userEmail != null ? userEmail : "default");
+                boolean hasSeenGuide = guidePrefs.getBoolean(guideKey, false);
+
+                Intent intent;
+                if (!hasSeenGuide) {
+                    intent = new Intent(WelcomeActivity.this, GuideActivity.class);
+                } else {
+                    intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                }
+
                 intent.putExtra("user_id", userId);
                 intent.putExtra("email", userEmail);
                 intent.putExtra("name", userName);
                 intent.putExtra("phone", userPhone);
                 intent.putExtra("birthday", userBirthday);
                 intent.putExtra("gender", userGender);
+                
+                if (getIntent().hasExtra("target_note_id")) {
+                    intent.putExtra("target_note_id", getIntent().getIntExtra("target_note_id", -1));
+                }
+
                 startActivity(intent);
                 finish();
             });

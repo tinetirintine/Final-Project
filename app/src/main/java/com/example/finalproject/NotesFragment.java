@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -58,7 +60,11 @@ public class NotesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_notes, container, false);
 
         TextView tvLabel = view.findViewById(R.id.tvCategoryLabel);
-        tvLabel.setText(getString(R.string.category_notes_label, category));
+        if ("Checklist".equals(category)) {
+            tvLabel.setText("Checklist Notes");
+        } else {
+            tvLabel.setText(getString(R.string.category_notes_label, category));
+        }
 
         Button btnEmptyTrash = view.findViewById(R.id.btnEmptyTrash);
         if ("Trash".equals(category)) {
@@ -121,9 +127,14 @@ public class NotesFragment extends Fragment {
         ImageButton btnFavorite = dialogView.findViewById(R.id.btnFavoriteAction);
         ImageButton btnClose = dialogView.findViewById(R.id.btnCloseAction);
 
-        btnPin.setColorFilter(note.isPinned() ? ContextCompat.getColor(requireContext(), R.color.colorPin) : Color.GRAY);
-        btnArchive.setColorFilter(note.isArchived() ? ContextCompat.getColor(requireContext(), R.color.colorArchive) : Color.GRAY);
-        btnFavorite.setColorFilter(note.isFavorite() ? ContextCompat.getColor(requireContext(), R.color.colorFavorite) : Color.GRAY);
+        btnPin.setImageResource(note.isPinned() ? R.drawable.ic_pin_filled : R.drawable.ic_pin_outline);
+        btnPin.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorPin));
+        
+        btnArchive.setImageResource(R.drawable.ic_archive);
+        btnArchive.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorArchive));
+        
+        btnFavorite.setImageResource(note.isFavorite() ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+        btnFavorite.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorFavorite));
 
         btnPin.setOnClickListener(v -> {
             note.setPinned(!note.isPinned());
@@ -132,7 +143,11 @@ public class NotesFragment extends Fragment {
         });
 
         btnArchive.setOnClickListener(v -> {
-            note.setArchived(!note.isArchived());
+            boolean newState = !note.isArchived();
+            note.setArchived(newState);
+            if (newState) {
+                note.setArchivedAt(System.currentTimeMillis());
+            }
             noteRepository.updateNote(note, () -> refreshNotes());
             dialog.dismiss();
         });
@@ -196,6 +211,19 @@ public class NotesFragment extends Fragment {
                             }
 
                             @Override
+                            public void onRestoreClick(Note note) {
+                                new AlertDialog.Builder(requireContext())
+                                    .setTitle("Restore Note")
+                                    .setMessage("Do you want to restore this note?")
+                                    .setPositiveButton("Restore", (dialog, which) -> {
+                                        note.setDeleted(false);
+                                        noteRepository.updateNote(note, () -> refreshNotes());
+                                    })
+                                    .setNegativeButton("Cancel", null)
+                                    .show();
+                            }
+
+                            @Override
                             public void onNoteClick(Note note) {
                                 Intent intent = new Intent(getActivity(), AddNoteActivity.class);
                                 intent.putExtra("user_id", userId);
@@ -208,13 +236,19 @@ public class NotesFragment extends Fragment {
                                 intent.putExtra("note_favorite", note.isFavorite());
                                 intent.putExtra("note_pinned", note.isPinned());
                                 intent.putExtra("note_archived", note.isArchived());
+                                intent.putExtra("note_archived_at", note.getArchivedAt());
                                 intent.putExtra("note_done", note.isDone());
-                                intent.putExtra("note_image", note.getImagePath());
+                                intent.putExtra("note_image_paths", note.getImagePaths());
+                                intent.putExtra("note_file_paths", note.getFilePaths());
+                                intent.putExtra("note_file_names", note.getFileNames());
+                                intent.putExtra("is_read_only", "Trash".equals(category) || "Checklist".equals(category));
                                 startActivity(intent);
                             }
                         });
+                        adapter.setTrashMode("Trash".equals(category));
                         recyclerView.setAdapter(adapter);
                     } else {
+                        adapter.setTrashMode("Trash".equals(category));
                         adapter.updateNotes(result);
                     }
                     layoutEmpty.setVisibility(result.isEmpty() ? View.VISIBLE : View.GONE);
@@ -228,6 +262,8 @@ public class NotesFragment extends Fragment {
             noteRepository.getArchivedNotes(userId, callback);
         } else if (category.equals("Trash")) {
             noteRepository.getDeletedNotes(userId, callback);
+        } else if (category.equals("Checklist")) {
+            noteRepository.getDoneNotes(userId, callback);
         } else {
             noteRepository.getNotesByCategory(userId, category, callback);
         }

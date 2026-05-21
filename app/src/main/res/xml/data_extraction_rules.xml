@@ -5,15 +5,23 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <include domain="database" path="final_project_db"/>
+        <include domain="database" path="final_project_db-shm"/>
+        <include domain="database" path="final_project_db-wal"/>
+        <include domain="sharedpref" path="."/>
+        <!-- Exclude security-sensitive data from cloud sync -->
+        <exclude domain="sharedpref" path="DeviceTrust.xml"/>
+        <exclude domain="sharedpref" path="LoginPrefs.xml"/>
+        <exclude domain="sharedpref" path="BioPrefs.xml"/>
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <include domain="database" path="final_project_db"/>
+        <include domain="database" path="final_project_db-shm"/>
+        <include domain="database" path="final_project_db-wal"/>
+        <include domain="sharedpref" path="."/>
+        <!-- Exclude security-sensitive data from direct device-to-device transfer -->
+        <exclude domain="sharedpref" path="DeviceTrust.xml"/>
+        <exclude domain="sharedpref" path="LoginPrefs.xml"/>
+        <exclude domain="sharedpref" path="BioPrefs.xml"/>
     </device-transfer>
-    -->
 </data-extraction-rules>
