@@ -274,14 +274,21 @@ public class ProfileFragment extends Fragment {
 
         btnLogout = view.findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                SharedPreferences loginPrefs = getActivity().getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE);
-                loginPrefs.edit().clear().apply();
-                Intent intent = new Intent(getActivity(), LoginAndSignup.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                getActivity().finish();
-            }
+            new AlertDialog.Builder(requireContext())
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    if (getActivity() != null) {
+                        SharedPreferences loginPrefs = getActivity().getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE);
+                        loginPrefs.edit().clear().apply();
+                        Intent intent = new Intent(getActivity(), LoginAndSignup.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
         });
 
         etEmail.setOnClickListener(v -> {
